@@ -15,7 +15,7 @@ Therefore, this addon provides 2 functionalities:
   * Or use one of the _no selection_ options (*from version 3.0*)
 * Import text and images directly from a website to current card
 
-> [ TODO ] All previews below need to be updated, as current version has many improvements like Tabs
+> [ TODO ] All preview images below need to be updated, as current version has many improvements like Tabs
 
 To check new features, check out [Release notes](RELEASE_NOTES)
 
@@ -44,7 +44,7 @@ It's possible to automatically remove/strip some words from the text to be searc
 
 **Initial size**: Define the browser window size, when opened for the first time in the session (*From 4.0*)
 
-**Enable DarkReader** refers to a feature to use Dark mode on the browser (still under improvement)
+**Enable DarkReader** refers to a feature to use Dark mode on the browser (still under development/tests)
  
 ## Using
 
@@ -121,5 +121,3 @@ This add-on uses Anki engine to perform that action, and Anki imposes that restr
 Please, feel free to ~~make suggestions and~~ open issues for possible bugs found.  
 
 > Unfortunately I won't have time to implement new features for a while
-
-Some pages aren't opening in this browser and for other ones sometimes the user needs to reload it. This is a known bug but there is no fix planned yet.
