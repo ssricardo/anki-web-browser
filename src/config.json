@@ -1,0 +1,47 @@
+{
+    "keepBrowserOpened": true,
+    "browserAlwaysOnTop": false,
+    "useSystemBrowser": false, 
+    "menuShortcut": "Ctrl+Shift+B",
+    "initialBrowserSize": "800x450",
+    "repeatShortcut": "F10", 
+    "providers": [
+        {
+            "name": "Google Web",
+            "url": "https://google.com/search?q={}"
+        },
+        {
+            "name": "Google Images",
+            "url": "https://www.google.com/search?tbm=isch&q={}"
+        },
+        {
+            "name": "Google Translator",
+            "url": "https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}"
+        },
+        {
+            "name": "Forvo",
+            "url": "https://forvo.com/search/{}/"
+        },
+        {
+            "name": "Pixabay",
+            "url": "https://pixabay.com/en/photos/?q={}&image_type=all"
+        },
+        {
+            "name": "SeekPng",
+            "url": "https://www.seekpng.com/search.html?color=&sizetype=s&type=&k={}"
+        },
+        {
+            "name": "Dict.cc",
+            "url": "https://www.dict.cc/?s={}"
+        },
+        {
+            "name": "Pons DE",
+            "url": "https://en.pons.com/translate/german-english/{}#examples"
+        },
+        {
+            "name": "Leo Dict",
+            "url": "https://dict.leo.org/englisch-deutsch/{}"
+        }
+    ],
+    "filteredWords": []
+}
