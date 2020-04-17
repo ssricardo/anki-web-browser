@@ -145,6 +145,7 @@ class ReviewController(BaseController):
         Feedback.log('Query: %s' % query)        
         self.openInBrowser(query)
 
+
     @exceptionHandler
     def createReviewerMenu(self, webView, menu):
         """Handles context menu event on Reviewer"""
@@ -164,7 +165,7 @@ class ReviewController(BaseController):
                     Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
                     return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
 
-        return None
+        return self.prepareNoSelectionDialog(self._currentNote)
 
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
         if not resultValue or \
@@ -193,4 +194,5 @@ class ReviewController(BaseController):
     def beforeOpenBrowser(self):
         self.browser.setFields(None)   # clear fields
         self.browser.setInfoList(['No action available on Reviewer mode'])
+        self.browser.setSelectionHandler(None)
 

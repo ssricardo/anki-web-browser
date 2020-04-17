@@ -1,5 +1,9 @@
 # Notes
 
+**4.1** | 17/04/20
+
+* Small bug fix on *No selection option* on reviewer
+
 **4.0** | 16/04/20
 
 * Added support to tabs

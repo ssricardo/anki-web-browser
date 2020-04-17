@@ -2,7 +2,7 @@
 # Module for anki-web-browser addon
 # -------------------------------------------------------------
 
-__version__ = "4.0"
+__version__ = "4.1"
 
 import sys
 

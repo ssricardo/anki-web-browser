@@ -32,7 +32,6 @@ class AwWebEngine(QWebEngineView):
                 clz.DARK_READER = ngJS.read()
                 Feedback.log('DarkReader loaded')
 
-
     def create(self):
         self.settings().globalSettings().setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
         self.settings().globalSettings().setAttribute(QWebEngineSettings.ErrorPageEnabled, True)

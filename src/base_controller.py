@@ -46,6 +46,13 @@ class BaseController:
     def _getQueryValue(self, input):
         raise Exception('Must be overriden')
 
+    def prepareNoSelectionDialog(self, note):
+        fieldList = note.model()['flds']
+        fieldsNames = {ind: val for ind, val in enumerate(map(lambda i: i['name'], fieldList))}
+        self._noSelectionHandler.setFields(fieldsNames)
+        self._noSelectionHandler.handle(self.handleNoSelectionResult)
+        return None
+
     def openInBrowser(self, query):
         """
             Setup enviroment for web browser and invoke it

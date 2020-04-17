@@ -120,14 +120,8 @@ class EditorController(BaseController):
                     Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
                     return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
 
-        self.browser.setSelectionHandler(self.handleSelection)
         note = webview.editor.note
-        fieldList = note.model()['flds']
-        fieldsNames = {ind: val for ind, val in enumerate(map(lambda i: i['name'], fieldList))}
-        self._noSelectionHandler.setFields(fieldsNames)
-        self._noSelectionHandler.handle(self.handleNoSelectionResult)
-
-        return None
+        return self.prepareNoSelectionDialog(note)
 
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
         if not resultValue or \
