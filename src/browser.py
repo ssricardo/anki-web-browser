@@ -96,7 +96,7 @@ class AwBrowser(QMainWindow):
             StandardMenuOption('Open in new tab', lambda add: self.openUrl(add, True))
         ])
 
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     @classmethod
     def singleton(cls, parent, sizeConfig: tuple):
@@ -218,6 +218,14 @@ class AwBrowser(QMainWindow):
         providersShort.activated.connect(lambda: self.newProviderMenu())
         providerNewTab = QShortcut(QtGui.QKeySequence("Ctrl+n"), self)
         providerNewTab.activated.connect(lambda: self.newProviderMenu(True))
+        goForward = QShortcut(QtGui.QKeySequence("Alt+right"), self)
+        goForward.activated.connect(self._onForward)
+        goBack = QShortcut(QtGui.QKeySequence("Alt+left"), self)
+        goBack.activated.connect(self._onBack)
+        previousTab = QShortcut(QtGui.QKeySequence("Ctrl+PgUp"), self)
+        previousTab.activated.connect(lambda: self.showRelatedTab(-1))
+        nextTab = QShortcut(QtGui.QKeySequence("Ctrl+PgDown"), self)
+        nextTab.activated.connect(lambda: self.showRelatedTab(+1))
 
     # ======================================== Tabs =======================================
 
@@ -278,13 +286,22 @@ class AwBrowser(QMainWindow):
             self._tabs.setTabText(index, title)
         return fn
 
+    def showRelatedTab(self, index: int):
+        if not self._tabs:
+            return
+        if self._tabs.currentIndex() == 0 and index < 0:
+            return
+        if self._tabs.currentIndex() == (len(self._tabs) - 1) and index > 0:
+            return
+        self._tabs.setCurrentIndex(self._tabs.currentIndex() + index)
+
     # =================================== General control ======================
 
     def formatTargetURL(self, website: str, query: str = ''):
         return website.format(urllib.parse.quote(query, encoding='utf8'))
 
     @exceptionHandler
-    def open(self, website, query: str, bringUp=False):
+    def open(self, website, query: str, bringUp=True):
         """
             Loads a given page with its replacing part with its query, and shows itself
         """
@@ -298,6 +315,7 @@ class AwBrowser(QMainWindow):
         if bringUp:
             self.show()
             self.raise_()
+            self.activateWindow()
 
     def openUrl(self, address: str, newTab=False):
         if self._tabs.count() == 0 or newTab:

@@ -1,5 +1,13 @@
 # Notes
 
+**4.1** | 29/08/20
+
+* Bug fixes
+  - NoneType message on close and reload
+  - Issue #1
+  - Broken warning message for unsupported links
+* Added new shortcuts (back, forward, next / previous tab)
+
 **4.1** | 17/04/20
 
 * Small bug fix on *No selection option* on reviewer

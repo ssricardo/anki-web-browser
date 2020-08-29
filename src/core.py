@@ -39,7 +39,7 @@ class Style:
 
     DARK_BG = """
         QMessageBox {
-            background-color: #FFFFBB;
+            background-color: #87A6C1;
             color: #FFF;
         }
         AwBrowser {
