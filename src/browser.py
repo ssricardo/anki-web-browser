@@ -8,9 +8,9 @@
 import os
 import urllib.parse
 
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QUrl, Qt, QSize, QObject
-from PyQt5.QtGui import QColor
+
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineContextMenuData, QWebEngineSettings, QWebEnginePage
 from PyQt5.QtWidgets import *
 
@@ -96,14 +96,7 @@ class AwBrowser(QMainWindow):
             StandardMenuOption('Open in new tab', lambda add: self.openUrl(add, True))
         ])
 
-        if myParent:
-            def wrapClose(fn):
-                def kloseBrowser(evt):
-                    self.close()
-                    self.deleteLater()
-                    return fn(evt)
-                return kloseBrowser
-            myParent.closeEvent = wrapClose(myParent.closeEvent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     @classmethod
     def singleton(cls, parent, sizeConfig: tuple):
@@ -343,11 +336,11 @@ class AwBrowser(QMainWindow):
         self._loadingBar.setProperty("value", 100)
 
     def _updateButtons(self):
-        isLoading: bool = self._currentWeb and self._currentWeb.isLoading
+        isLoading: bool = self._currentWeb is not None and self._currentWeb.isLoading
         if isLoading is None:
             isLoading = False
         self.stopBtn.setEnabled(isLoading)
-        self.forwardBtn.setEnabled(self._currentWeb and self._currentWeb.history().canGoForward())
+        self.forwardBtn.setEnabled(self._currentWeb is not None and self._currentWeb.history().canGoForward())
 
     def _goToAddress(self):
         q = QUrl(self._itAddress.text())

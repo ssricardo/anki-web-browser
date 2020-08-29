@@ -83,8 +83,8 @@ class AwBrowserMenu:
     def _checkSuffix(self, value):
         if value and not value.toString().endswith(("jpg", "jpeg", "png", "gif")):
             msgLink = value.toString()
-            if len(value.toString()) < 80:
-                msgLink = msgLink[:50] + '...' + msgLink[50:]
+            if len(value.toString()) > 100:
+                msgLink = msgLink[:60] + '...' + msgLink[30::-1]
             answ = QMessageBox.question(self._web, 'Anki support',
                                         """This link may not be accepted by Anki: \n\n "%s" \n
                         Usually the suffix should be one of 
