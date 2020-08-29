@@ -97,14 +97,11 @@ class Tester(unittest.TestCase):
         engine.selectedText = self.customSelected
         bm.contextMenuEvent(FakeEvent())
 
-
-if __name__ == '__main__':
-
-    app = QApplication(sys.argv)
-    if '-view' in sys.argv:
+    def test_integratedView(self):
+        app = QApplication(sys.argv)
         sys.argv.append("--disable-web-security")
         main = QMainWindow()
-        view = AwBrowser(main, (800, 400))
+        view = AwBrowser(main, (900, 600))
         view.setFields({0: 'Example', 1: 'Other'})
         view.setInfoList(['No action available'])
 
@@ -114,7 +111,27 @@ if __name__ == '__main__':
 
         view.setSelectionHandler(handlerFn)
         view.open('https://www.google.com/search?tbm=isch&tbs=isz:i&q={}', 'calendar', True)
+        # view.open('file:///home/ricardo/mobel.md', 'calendar', True)
         sys.exit(app.exec_())
-    else:
-        sys.exit(unittest.main())
+
+
+if __name__ == '__main__':
+
+    app = QApplication(sys.argv)
+    # if '-view' in sys.argv:
+    sys.argv.append("--disable-web-security")
+    main = QMainWindow()
+    view = AwBrowser(main, (800, 400))
+    view.setFields({0: 'Example', 1: 'Other'})
+    view.setInfoList(['No action available'])
+
+    def handlerFn(f, v, l):
+        print('Field: %s' % (f))
+        print('Link/Value: %s / %s' % (l, v))
+
+    view.setSelectionHandler(handlerFn)
+    view.open('https://www.google.com/search?tbm=isch&tbs=isz:i&q={}', 'calendar', True)
+    sys.exit(app.exec_())
+    # else:
+    #     sys.exit(unittest.main())
 

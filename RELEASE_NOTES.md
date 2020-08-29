@@ -1,6 +1,6 @@
 # Notes
 
-**4.1** | 29/08/20
+**4.2** | 29/08/20
 
 * Bug fixes
   - NoneType message on close and reload
