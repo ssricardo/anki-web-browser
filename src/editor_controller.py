@@ -10,13 +10,15 @@
 
 import json
 
+import os
+
 from PyQt5.QtWidgets import QWidget
 from anki.hooks import addHook
 from aqt.editor import Editor
 
 from .base_controller import BaseController
 from .config import service as cfg
-from .core import Feedback
+from .core import Feedback, CWD
 from .no_selection import NoSelectionResult
 
 
@@ -35,6 +37,7 @@ class EditorController(BaseController):
         addHook('EditorWebView.contextMenuEvent', self.onEditorHandle)
         addHook("setupEditorShortcuts", self.setupShortcuts)
         addHook("loadNote", self.newLoadNote)
+        addHook("setupEditorButtons", self.setupEditorButtons)
 
     def newLoadNote(self, editor: Editor):
         """ Listens when the current showed card is changed.
@@ -54,7 +57,6 @@ class EditorController(BaseController):
         if not cfg.getConfig().keepBrowserOpened:
             self.browser.close()
 
-
     def onEditorHandle(self, webView, menu):
         """
             Wrapper to the real context menu handler on the editor;
@@ -64,11 +66,21 @@ class EditorController(BaseController):
         self._editorReference = webView.editor
         self.createEditorMenu(menu, self.handleProviderSelection)
 
+    def _callRepeatProviderOrShowMenu(self, editor):
+        self._repeatProviderOrShowMenu()
 
-    def setupShortcuts(self, scuts:list, editor):
+    def setupEditorButtons(self, buttons, editor):
+        buttons.insert(0, editor.addButton(os.path.join(CWD, 'assets', 'www.png'),
+                                           "search web",
+                                           self._callRepeatProviderOrShowMenu,
+                                           tip="search web"))
+        return buttons
+
+    def setupShortcuts(self, scuts: list, editor):
         self._editorReference = editor
         scuts.append((cfg.getConfig().menuShortcut, self._showBrowserMenu))
-        scuts.append((cfg.getConfig().repeatShortcut, self._repeatProviderOrShowMenu))
+        scuts.append((cfg.getConfig().repeatShortcut,
+                      self._repeatProviderOrShowMenu))
 
 # ------------------------ Addon operation -------------------------
 
@@ -90,7 +102,6 @@ class EditorController(BaseController):
 
         super()._repeatProviderOrShowMenu(webView)
 
-    
     def createEditorMenu(self, parent, menuFn):
         """ Deletegate the menu creation and work related to providers """
 
@@ -98,7 +109,8 @@ class EditorController(BaseController):
 
     def handleProviderSelection(self, result):
         if not self._editorReference:
-            raise Exception('Illegal state found. It was not possible to recover the reference to Anki editor')
+            raise Exception(
+                'Illegal state found. It was not possible to recover the reference to Anki editor')
         webview = self._editorReference.web
         query = self._getQueryValue(webview)
         self._lastProvider = result
@@ -117,7 +129,8 @@ class EditorController(BaseController):
             if noSelectionResult.resultType == NoSelectionResult.USE_FIELD:
                 self._editorReference.currentField = noSelectionResult.value
                 if noSelectionResult.value < len(self._currentNote.fields):
-                    Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
+                    Feedback.log('USE_FIELD {}: {}'.format(
+                        noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
                     return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
 
         note = webview.editor.note
@@ -142,8 +155,10 @@ class EditorController(BaseController):
         self.browser.setSelectionHandler(self.handleSelection)
         note = self._currentNote
         fieldList = note.model()['flds']
-        fieldsNames = {ind: val for ind, val in enumerate(map(lambda i: i['name'], fieldList))}
-        self.browser.setInfoList(['No action available', 'Required: Text selected or link to image'])
+        fieldsNames = {ind: val for ind, val in enumerate(
+            map(lambda i: i['name'], fieldList))}
+        self.browser.setInfoList(
+            ['No action available', 'Required: Text selected or link to image'])
         self.browser.setFields(fieldsNames)
 
     def handleSelection(self, fieldIndex, value, isUrl=False):
@@ -173,16 +188,18 @@ class EditorController(BaseController):
         url = value.toString() if value else ''
         Feedback.log("Selected from browser: {} || ".format(url))
 
-        imgReference = self._editorReference.urlToLink(url)        
+        imgReference = self._editorReference.urlToLink(url)
 
         if (not imgReference) or not imgReference.startswith('<img'):
-            Feedback.showWarn('URL invalid! Only URLs with references to image files are supported (ex: http://images.com/any.jpg,  any.png)')
+            Feedback.showWarn(
+                'URL invalid! Only URLs with references to image files are supported (ex: http://images.com/any.jpg,  any.png)')
             return
 
         Feedback.log('handleUrlSelection.imgReference: ' + imgReference)
 
         self._editorReference.web.eval("focusField(%d);" % fieldIndex)
-        self._editorReference.web.eval("setFormat('inserthtml', %s);" % json.dumps(imgReference))
+        self._editorReference.web.eval(
+            "setFormat('inserthtml', %s);" % json.dumps(imgReference))
 
     def handleTextSelection(self, fieldIndex, value):
         """Adds the selected value to the given field of the current note"""
