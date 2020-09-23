@@ -25,6 +25,7 @@ from .no_selection import NoSelectionResult
 class EditorController(BaseController):
     _editorReference = None
     _lastProvider = None
+    _replace = False
 
     def __init__(self, ankiMw):
         super(EditorController, self).__init__(ankiMw)
@@ -69,7 +70,16 @@ class EditorController(BaseController):
     def _callRepeatProviderOrShowMenu(self, editor):
         self._repeatProviderOrShowMenu()
 
+    def _toggleReplace(self, editor):
+        self._replace = not self._replace
+        feedback = "Assigning from browser will replace entire field" if self._replace else "Assigning from browser will append to field"
+        Feedback.showInfo(feedback)
+
     def setupEditorButtons(self, buttons, editor):
+        buttons.insert(0, editor.addButton(os.path.join(CWD, 'assets', 'toggle-replace.png'),
+                                           "toggle replace",
+                                           self._toggleReplace,
+                                           tip="toggle replace"))
         buttons.insert(0, editor.addButton(os.path.join(CWD, 'assets', 'www.png'),
                                            "search web",
                                            self._callRepeatProviderOrShowMenu,
@@ -204,6 +214,6 @@ class EditorController(BaseController):
     def handleTextSelection(self, fieldIndex, value):
         """Adds the selected value to the given field of the current note"""
 
-        newValue = self._currentNote.fields[fieldIndex] + '\n ' + value
+        newValue = value if self._replace else self._currentNote.fields[fieldIndex] + ' ' + value
         self._currentNote.fields[fieldIndex] = newValue
         self._editorReference.setNote(self._currentNote)
