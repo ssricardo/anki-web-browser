@@ -2,7 +2,7 @@
     "browserAlwaysOnTop": false,
     "enableDarkReader": false,
     "filteredWords": [],
-    "initialBrowserSize": "1000x950",
+    "initialBrowserSize": "1000x1125",
     "keepBrowserOpened": true,
     "menuShortcut": "Ctrl+Shift+B",
     "providers": [{
@@ -16,6 +16,10 @@
         {
             "name": "search developer.mozzilla.org",
             "url": "https://www.google.com/search?hl=en&as_q={}&as_qdr=all&as_sitesearch=https:%3A%2F%2Fdeveloper.mozilla.org&as_occt=any&safe=images"
+        },
+        {
+            "name": "search css formal definition - feeling lucky",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/{}#Formal_definition"
         },
         {
             "name": "search css formal definition",
