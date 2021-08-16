@@ -134,7 +134,6 @@ class AwBrowserMenu:
             act.setEnabled(False)
             m.addAction(act)
 
-
         action = m.exec_(self._web.mapToGlobal(evt.pos()))
 
     def _copy(self, value):

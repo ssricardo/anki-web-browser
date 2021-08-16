@@ -8,14 +8,15 @@
 import os
 import urllib.parse
 
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QUrl, Qt, QSize, QObject
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import QUrl, Qt, QSize
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineContextMenuData, QWebEngineSettings, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
 from PyQt5.QtWidgets import *
 
-from .config import service as cfg
-from .core import Label, Feedback, Style, CWD
+from . import CWD
+from .config.main import service as cfg
+from .core import Feedback, Style
 from .exception_handler import exceptionHandler
 from .provider_selection import ProviderSelectionController
 
@@ -91,6 +92,7 @@ class AwBrowser(QMainWindow):
         self._parent = myParent
         self.setupUI(sizingConfig)
         self._setupShortcuts()
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         self._menuDelegator = AwBrowserMenu([
             StandardMenuOption('Open in new tab', lambda add: self.openUrl(add, True))
@@ -237,6 +239,7 @@ class AwBrowser(QMainWindow):
         browser = AwWebEngine(self)
         browser.setUrl(qurl)
         browser.contextMenuEvent = self._menuDelegator.contextMenuEvent
+        browser.page().settings().setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
         browser.page().loadStarted.connect(self.onStartLoading)
         browser.page().loadFinished.connect(self.onLoadFinish)
         browser.page().loadProgress.connect(self.onProgress)
@@ -263,14 +266,16 @@ class AwBrowser(QMainWindow):
         self._updateButtons()
 
     def close_current_tab(self, i):
-        Feedback.log('Close current tab with index: %d' % i)
+        Feedback.log('Close current tab with index: %d of %d' % (i, self._tabs.count()))
         if self._tabs.count() < 2:
             if self._currentWeb:
                 self._currentWeb.setUrl(QUrl('about:blank'))
             return
 
-        self._tabs.currentWidget().deleteLater()
-        self._tabs.setCurrentWidget(None)
+        if self._tabs.currentIndex() == i:
+            self._tabs.setCurrentWidget(None)
+
+        self._tabs.widget(i).deleteLater()
         self._tabs.removeTab(i)
 
     def update_urlbar(self, q, browser=None):
@@ -364,6 +369,11 @@ class AwBrowser(QMainWindow):
         q = QUrl(self._itAddress.text())
         if q.scheme() == "":
             q.setScheme("http")
+
+        if not self._currentWeb:
+            Feedback.showWarn("Inconsistent state found on Web Browser, with code: AWB-Br373")
+            self.clearContext()
+            self.close()
 
         self._currentWeb.load(q)
         self._currentWeb.show()

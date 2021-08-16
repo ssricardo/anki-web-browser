@@ -6,10 +6,6 @@
 from .no_selection_view import Ui_Dialog
 from .core import Feedback
 
-import os
-import json
-import re
-import shutil
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QMessageBox, QAction
 from PyQt5.Qt import QIcon

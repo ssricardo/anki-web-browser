@@ -3,7 +3,7 @@
     "browserAlwaysOnTop": false,
     "useSystemBrowser": false, 
     "menuShortcut": "Ctrl+Shift+B",
-    "initialBrowserSize": "800x450",
+    "initialBrowserSize": "800x550",
     "repeatShortcut": "F10", 
     "providers": [
         {

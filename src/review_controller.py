@@ -13,7 +13,7 @@ from aqt.utils import tooltip, showWarning, openLink
 
 from .base_controller import BaseController
 from .browser import AwBrowser
-from .config import service as cfg
+from .config.main import service as cfg
 from .core import Feedback
 from .editor_controller import EditorController
 from .exception_handler import exceptionHandler
@@ -31,6 +31,7 @@ def _ankiShowInfo(*args):
 def _ankiShowError(*args):
     showWarning(str(args))
 
+
 def run():
     global controllerInstance, editorCtrl
     
@@ -40,7 +41,7 @@ def run():
     Feedback.showWarn = lambda args: tooltip('<b>Warning</b><br />' + args, 7500)
     BaseController.openExternalLink = openLink
 
-    cfg.getConfig()  # Load config
+    cfg.getConfig()  # Load web
     controllerInstance = ReviewController(mw)
     controllerInstance.setupBindings()
 
@@ -70,13 +71,13 @@ class ReviewController(BaseController):
         Reviewer.nextCard = self.wrapOnCardShift(Reviewer.nextCard)
         Reviewer._shortcutKeys = self.wrap_shortcutKeys(Reviewer._shortcutKeys)
 
-        # Add config to menu
+        # Add web to menu
         action = QAction("Anki-Web-Browser Config", self._ankiMw)
         action.triggered.connect(self.openConfig)
         self._ankiMw.form.menuTools.addAction(action)
 
     def openConfig(self):
-        from .config import ConfigController
+        from .config.config_ctrl import ConfigController
         cc = ConfigController(self._ankiMw)
         cc.open()
 

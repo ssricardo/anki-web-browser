@@ -4,8 +4,8 @@
 # Shows registered providers (websites) to search for the selected sentence
 # --------------------------------------------
 
-from .core import Label, Feedback, Style
-from .config import service as cfgService
+from .core import Label, Style
+from .config.main import service as cfgService
 from PyQt5.QtWidgets import QMenu, QAction
 
 
