@@ -35,7 +35,7 @@ class ConfigView(QDialog):
 
         browser = QWebEngineView(self)
         browser.page().loadFinished.connect(self.onLoadFinish)
-        browser.setUrl(QUrl("file://" + CURDIR + "/web/config.html"))
+        browser.setUrl(QUrl.fromLocalFile(os.path.join(CURDIR, "web", "config.html")))
         browser.contextMenuEvent = self.contextMenu
 
         mainLayout.addWidget(browser)
