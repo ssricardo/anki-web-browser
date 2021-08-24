@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<style type="text/css">
+    #warn-system-browser {
+        size: small;
+        color: red;
+        margin-right: 30px;
+        visibility: hidden;
+    }
+
+    #mainConfg {
+        border-bottom: 1px solid;
+    }
+
+    #secMisc div > label {
+        width: 35%;
+        display: inline-block;
+        text-align: right;
+    }
+</style>
+
+<section id="secMisc">
+    <div id="mainConfg">
+        <h3>Shortcuts</h3>
+        <div>
+            <label>Show Web Browser Menu: </label>
+            <input id="itShortMenu" type="text" pattern="((\w+)+)(\w+)" />
+        </div>
+        <div>
+            <label>Search repeating last provider: </label>
+            <input id="itShortRepeat" type="text" pattern="((\w+)+)(\w+)" />
+        </div>
+        <div>
+            <label>Initial size: </label>
+            <input id="iWidth" type="number" min="50" max="100000" />
+            <input id="iHeight" type="number" min="50" max="100000" />
+        </div>
+
+        <h3>Behavior</h3>
+        <div>
+            <label>Ignore (filter) words: </label>
+            <input id="itIgnoreWords" type="text" />
+        </div>
+    </div>
+    <div id="secConf">
+        <div>
+            <label for="cbSystemBrowser">Open on System Browser (instead of Anki-Web-Browser)</label>
+            <input type="checkbox" id="cbSystemBrowser" onchange="onUsedBrowserChange()" />
+            <div id="warn-system-browser">Some features (like importing) are not enabled on external browsers</div>
+        </div>
+        <div>
+            <label for="cbAlwaysTop">Keep always visible (on top)</label>
+            <input type="checkbox" id="cbAlwaysTop" />
+        </div>
+        <div>
+            <label for="cbKeepOpen">Keep browser open (after current card is changed)</label>
+            <input type="checkbox" id="cbKeepOpen" />
+        </div>
+        <div>
+            <label for="cbDarkReader">Enable DarkReader (experimental)</label>
+            <input type="checkbox" id="cbDarkReader" />
+        </div>
+    </div>
+
+    <script type="text/javascript">        
+
+        function loadMain() {
+            if (!curConfig || !curConfig.initialBrowserSize || !curConfig.filteredWords) {
+                console.warn('No configuration present')
+                return;
+            }
+
+            $('#itShortMenu').val(curConfig.menuShortcut)
+            $('#itShortRepeat').val(curConfig.repeatShortcut)
+                        
+            const reWidthHeight = /(\d+)x(\d+)/
+            let matches = curConfig.initialBrowserSize.match(reWidthHeight)
+            if (matches) {
+                $('#iWidth').val(matches[1])
+                $('#iHeight').val(matches[2])
+            }
+            $('#cbSystemBrowser').prop('checked', curConfig.useSystemBrowser)
+            $('#cbAlwaysTop').prop('checked', curConfig.browserAlwaysOnTop)
+            $('#cbKeepOpen').prop('checked', curConfig.keepBrowserOpened)
+            $('#cbDarkReader').prop('checked', curConfig.enableDarkReader)
+            $('#itIgnoreWords').val(curConfig.filteredWords.join(' '))
+
+            onUsedBrowserChange()
+        }
+
+        function saveMain() {
+            curConfig.filteredWords = $('#itIgnoreWords').val().trim().split(' ')
+            curConfig.menuShortcut = $('#itShortMenu').val().trim()
+            curConfig.repeatShortcut = $('#itShortRepeat').val().trim()
+            curConfig.initialBrowserSize = `${$('#iWidth').val()}x${$('#iHeight').val()}`
+            curConfig.useSystemBrowser = $('#cbSystemBrowser').is(":checked")
+            curConfig.browserAlwaysOnTop = $('#cbAlwaysTop').is(":checked")
+            curConfig.keepBrowserOpened = $('#cbKeepOpen').is(":checked")
+            curConfig.enableDarkReader = $('#cbDarkReader').is(":checked")
+        }
+
+        function onUsedBrowserChange() {
+            let useSystemBrowser = $('#cbSystemBrowser').is(":checked")
+            $('#warn-system-browser').attr('visibility', (useSystemBrowser) ? 'visible' : 'hidden')
+
+            if (useSystemBrowser) {
+                $('#cbAlwaysTop').prop('checked', false)
+                $('#cbKeepOpen').prop('checked', false)
+                $('#cbDarkReader').prop('checked', false)
+            }
+        }
+    </script>
+</section>

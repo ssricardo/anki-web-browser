@@ -4,11 +4,11 @@
 # ---------------------------------- Base Controller -----------------------------------
 # ---------------------------------- ================ ---------------------------------
 
-from .config import service as cfg
+from .config.main import service as cfg
 from .core import Feedback
 from .exception_handler import exceptionHandler
 from .browser import AwBrowser
-from .no_selection import NoSelectionController, NoSelectionResult
+from .no_selection import NoSelectionController
 from .provider_selection import ProviderSelectionController
 
 class BaseController:
@@ -34,7 +34,7 @@ class BaseController:
         self.openInBrowser(query)
 
     def _filterQueryValue(self, query: str):
-        "Remove words defined on filteredWords from config"
+        "Remove words defined on filteredWords from web"
 
         filteredWords = cfg.getConfig().filteredWords
         if not filteredWords:

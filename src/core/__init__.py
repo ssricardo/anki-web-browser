@@ -6,9 +6,6 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
-import os
-CWD = os.path.dirname(os.path.realpath(__file__))
-
 class Label:
     CARD_MENU = 'Search on &Web'
     BROWSER_ASSIGN_TO = 'Assign to field:'
@@ -35,8 +32,8 @@ class Feedback:
     def showError(*args):
         pass
 
-class Style:
 
+class Style:
     DARK_BG = """
         QMessageBox {
             background-color: #87A6C1;
@@ -61,7 +58,7 @@ class Style:
           margin-bottom: -1px; 
         }
     """
-    
+
     # "background-color: #152032;"
     MENU_STYLE = """
             QMenu {

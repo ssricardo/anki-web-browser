@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<style type="text/css">
+
+    .h3Plus {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #iconPlus {
+        text-align: right;
+        margin-right: 20px;
+        margin-top: 10px;
+    }
+
+    #pList table {
+        width: 100%;
+        font-size: small;
+    }
+    
+    #pList {
+        height: 380px;
+        overflow-y: scroll;        
+    }
+
+    #pList tr:hover {
+        background-color: rgba(68, 68, 68, 0.6);
+    }
+
+    #pList th {
+        border-bottom: 2px solid #777;
+    }
+
+    #pList td {
+        padding: 10px 3px;
+        border-bottom: 1px dashed;
+    }
+
+    #pList th:nth-child(0) {
+        width: 150px;
+    }
+
+    .rActions {
+        text-align: center;
+    }
+
+    .rActions > a {
+        margin: 3px;
+    }
+
+    #pForm {
+        display: none;
+    }
+
+    #pForm label {
+        width: 30%;
+        display: inline-block;
+        text-align: right;
+    }
+
+    #pvActions img {
+        vertical-align: middle;
+    }
+
+</style>
+
+<script type="text/javascript">
+    function loadProviders() {
+        $('#tbRows').empty()
+        let providerList = curConfig.providers
+        providerList.forEach((p, index) => row(p, index))
+    }
+
+    function row(provider, index) {
+        let row = $(`<tr>
+                        <td>${provider.name}</td> 
+                        <td>${provider.url}</td> 
+                        <td class="rActions">
+                            <a href="#" onclick="edit(${index})" title="Edit Provider"><img src="../../assets/edit.png" width="24" /></a>
+                            <a href="#" onclick="removeItem(${index})" title="Remove Provider"><img src="../../assets/icon-trash.png" width="24" /></a>
+                            <a href="#" onclick="moveItem(${index}, -1)" title="Remove Provider"><img src="../../assets/icon-up.png" width="24" /></a>
+                            <a href="#" onclick="moveItem(${index}, +1)" title="Remove Provider"><img src="../../assets/icon-down.png" width="24" /></a>
+                        </td> 
+                    </tr>`)
+        $('#tbRows').append(row)
+    }
+
+    function moveItem(index, offset) {
+        const prov = curConfig.providers
+        const cur = prov[index]
+        prov[index] = prov[index + offset]
+        prov[index + offset] = cur
+        loadProviders()
+    }
+
+    function removeItem(index) {
+        curConfig.providers.splice(index, 1)
+        loadProviders()
+    }
+
+    function addNew() {
+        $('#iSelected').val(-1)
+        $('#itProvName').val("")
+        $('#itProvUrl').val("")
+        showForm()
+    }
+
+    function edit(index) {
+        let item = curConfig.providers[index]
+        $('#iSelected').val(index)
+        $('#itProvName').val(item.name)
+        $('#itProvUrl').val(item.url)
+        showForm()
+    }
+
+    function showForm() {
+        $('#pList').hide()
+        $('#pForm').show()
+    }
+
+    function confirmForm() {
+        let item = {}
+        let position = $('#iSelected').val()
+        item.name =  $('#itProvName').val().trim()
+        item.url = $('#itProvUrl').val().trim()
+
+        if (position >= 0) {
+            curConfig.providers[position] = item
+        } else {
+            curConfig.providers.push(item)
+        }
+        
+        closeForm()
+    }
+
+    function closeForm() {
+        $('#pForm').hide()
+        loadProviders()
+        $('#pList').show()
+    }
+
+    function saveProviders() {
+        console.log('Providers are updated directly on source reference')
+    }
+
+</script>
+
+<section>
+    <h3 class="h3Plus">
+        <span>Providers</span>
+        <a href="#" id="iconPlus" title="Add Provider" onclick="addNew()"><img src="../../assets/plus-signal.png" width="24" /></a>
+    </h3>
+    <div id="pList">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th><img src="../../assets/gear-icon.png" width="24" /></th>
+                </tr>
+            </thead>
+            <tbody id="tbRows">
+            </tbody>
+        </table>        
+    </div>
+
+    <!-- === Form === -->
+    <div id="pForm">
+        <input id="iSelected" type="hidden" value="-1" />
+        <div>
+            <label>Name: </label>
+            <input id="itProvName" type="text" maxlength="50" />
+        </div>
+        <div>
+            <label>Url: </label>
+            <input id="itProvUrl" type="url" />
+        </div>
+        <div class="pvActions">
+            <button onclick="closeForm()">
+                <img src="../../assets/stop.png" width="24" />
+                Cancel</button>
+            <button onclick="confirmForm()">
+                <img src="../../assets/go-icon.png" width="24" />
+                Confirm</button>
+        </div>
+    </div>
+
+</section>

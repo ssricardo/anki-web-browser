@@ -15,7 +15,7 @@ from anki.hooks import addHook
 from aqt.editor import Editor
 
 from .base_controller import BaseController
-from .config import service as cfg
+from .config.main import service as cfg
 from .core import Feedback
 from .no_selection import NoSelectionResult
 

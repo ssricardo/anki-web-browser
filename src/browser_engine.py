@@ -8,9 +8,9 @@ import os
 
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineContextMenuData, QWebEngineSettings, QWebEnginePage
-from PyQt5.QtWidgets import *
 
-from .core import Label, Feedback, CWD
+from .core import Label, Feedback
+from . import CWD
 
 
 # noinspection PyPep8Naming
