@@ -1,5 +1,12 @@
 # Notes
 
+**4.3** | 24/08/21
+
+* Introduce new config view (prepare future features)
+* Bug fixes
+  - Issue #5
+  - Issue #9
+
 **4.2** | 29/08/20
 
 * Bug fixes

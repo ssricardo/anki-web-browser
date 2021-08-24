@@ -20,5 +20,7 @@ from src.config.main import ConfigHolder, Provider
 
 main = QtWidgets.QMainWindow()
 view = cc.ConfigView(None)
-view.open(ConfigHolder(providers=[Provider("Insta", "https://instagram.com/{}").__dict__]))
+config = ConfigHolder(providers=[Provider("Insta", "https://instagram.com/{}").__dict__])
+config.enableDarkReader = True
+view.open(config)
 sys.exit(app.exec_())

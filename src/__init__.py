@@ -18,8 +18,8 @@ def logToConsole(*args, **kargs):
 
 try:
     # Uncomment to produce more logs on console
-    from .core import Feedback
-    Feedback.log = logToConsole
+    # from .core import Feedback
+    # Feedback.log = logToConsole
 
     if not sys.argv.__contains__('-awb-test'):
         from .review_controller import run

@@ -92,7 +92,7 @@ class AwBrowser(QMainWindow):
         self._parent = myParent
         self.setupUI(sizingConfig)
         self._setupShortcuts()
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         self._menuDelegator = AwBrowserMenu([
             StandardMenuOption('Open in new tab', lambda add: self.openUrl(add, True))
@@ -329,6 +329,8 @@ class AwBrowser(QMainWindow):
             self._currentWeb.setUrl(QUrl(address))
 
     def clearContext(self):
+        if not self._context:
+            return
         numTabs = self._tabs.count()
         if numTabs == 0:
             return

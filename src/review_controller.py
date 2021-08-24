@@ -97,8 +97,8 @@ class ReviewController(BaseController):
             else:
                 originalResult = originalFunction(self)
 
-            if not ref.browser:
-                return
+            if not ref.browser or cfg.getConfig().useSystemBrowser:
+                return originalFunction
             
             ref.browser.clearContext()
             if not cfg.getConfig().keepBrowserOpened:
