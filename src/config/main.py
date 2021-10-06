@@ -5,6 +5,7 @@
 # This files is part of anki-web-browser addon
 # @author ricardo saturnino
 # -------------------------------------------------------
+from typing import List
 
 from ..core import Feedback
 
@@ -26,10 +27,11 @@ class ConfigHolder:
     RP_SHORT = 'F10'
     INITIAL_SIZE = '850x500'
 
-    def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop = False, menuShortcut=SHORTCUT, \
+    def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop=False, menuShortcut=SHORTCUT, \
                  providers=[], initialBrowserSize=INITIAL_SIZE, enableDarkReader=False,
-                 repeatShortcut=RP_SHORT, useSystemBrowser=False, filteredWords=[], **kargs):
+                 repeatShortcut=RP_SHORT, useSystemBrowser=False, groups=[], filteredWords=[], **kargs):
         self.providers = [Provider(**p) for p in providers]
+        self.groups = [SearchGroup(**g) for g in groups]
         self.keepBrowserOpened = keepBrowserOpened
         self.browserAlwaysOnTop = browserAlwaysOnTop
         self.useSystemBrowser = useSystemBrowser
@@ -47,6 +49,7 @@ class ConfigHolder:
             'menuShortcut': self.menuShortcut,
             'repeatShortcut': self.repeatShortcut, 
             'providers': [p for p in map(lambda p: p.__dict__, self.providers)],
+            'groups': [g for g in map(lambda g: g.__dict__, self.groups)],
             'filteredWords': self.filteredWords,
             'initialBrowserSize': self.initialBrowserSize,
             'enableDarkReader': self.enableDarkReader
@@ -59,6 +62,13 @@ class Provider:
     def __init__(self, name, url, **kargs):
         self.name = name
         self.url = url
+
+
+class SearchGroup:
+
+    def __init__(self, name: str, providerList: List[str]):
+        self.name = name
+        self.providerList = providerList
 
 
 # ------------------------------ Service class --------------------------
@@ -77,7 +87,7 @@ class ConfigService:
         return self._config        
 
     def load(self, createIfNotExists=True):
-        Feedback.log('[INFO] Trying to read web file in {}'.format(CONFIG_LOCATION + '/' + CONFIG_FILE))
+        Feedback.log('[INFO] Trying to read web file in {}'.format(self._configLocation()))
         try:
             conf = self._readFileToObj()
         except:
@@ -89,7 +99,7 @@ class ConfigService:
         return conf
 
     def _readFileToObj(self) -> ConfigHolder:
-        with open(CONFIG_LOCATION + '/' + CONFIG_FILE) as f:
+        with open(self._configLocation()) as f:
             obj = json.load(f)
             Feedback.log(obj)
             conf = ConfigHolder(**obj)
@@ -101,13 +111,13 @@ class ConfigService:
 
         bkpName = None  #
         try:
-            if os.path.exists(currentLocation + '/' + CONFIG_FILE):
-                bkpName = shutil.copyfile(CONFIG_LOCATION + '/' + CONFIG_FILE, CONFIG_LOCATION + '/.bkp_' + CONFIG_FILE)
-            with(open(CONFIG_LOCATION + '/' + CONFIG_FILE, 'w')) as cfgFile:
+            if os.path.exists(self._configLocation()):
+                bkpName = shutil.copyfile(self._configLocation(), self._configLocation() + '.bkp')
+            with(open(self._configLocation(), 'w')) as cfgFile:
                 json.dump(config.toDict(), cfgFile)
         except Exception as e:
             if bkpName:
-                shutil.copyfile(bkpName, CONFIG_LOCATION + '/' + CONFIG_FILE)  # restore
+                shutil.copyfile(bkpName, self._configLocation())  # restore
             Feedback.showError(e)
         finally:
             if bkpName:
@@ -119,7 +129,7 @@ class ConfigService:
             A simple JSON from a dictionary. Should be called only if the file doesn't exist yet
         """
 
-        Feedback.log('[INFO] Creating a new web file in {}'.format(currentLocation + '/' + CONFIG_FILE))
+        Feedback.log('[INFO] Creating a new web file in {}'.format(self._configLocation()))
 
         conf = ConfigHolder()
 
@@ -130,9 +140,14 @@ class ConfigService:
             Provider('Google Images', 'https://www.google.com/search?tbm=isch&q={}'),
             Provider('Forvo', 'https://forvo.com/search/{}/')]
 
+        conf.groups = [SearchGroup('Google', ['Google Web', 'Google Translate', 'Google Images'])]
+
         self.__writeToFile(conf)
         self.firstTime = True
         return conf
+
+    def _configLocation(self):
+        return "%s/%s" % (currentLocation, CONFIG_FILE)
 
     def save(self, config):
         """ Save a given configuration """
@@ -148,7 +163,7 @@ class ConfigService:
             Feedback.showInfo(ve)
             return False
         
-        Feedback.log('[INFO] Saving web file in {}'.format(currentLocation + '/' + CONFIG_FILE))
+        Feedback.log('[INFO] Saving web file in {}'.format(self._configLocation()))
         self.__writeToFile(config)
         self._config = config
         Feedback.showInfo('Anki-Web-Browser configuration saved')

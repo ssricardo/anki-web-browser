@@ -3,6 +3,7 @@
 # ---------------------------------- ================ ---------------------------------
 # ---------------------------------- Base Controller -----------------------------------
 # ---------------------------------- ================ ---------------------------------
+from typing import List
 
 from .config.main import service as cfg
 from .core import Feedback
@@ -12,10 +13,9 @@ from .no_selection import NoSelectionController
 from .provider_selection import ProviderSelectionController
 
 class BaseController:
-    "Concentrates common operations between both concrete controllers"
+    """ Concentrates common operations between both concrete controllers """
 
     browser = None
-    _lastProvider = None
     _currentNote = None
     _ankiMw = None    
 
@@ -40,7 +40,7 @@ class BaseController:
         if not filteredWords:
             return query
         querywords = query.split()
-        resultwords  = [word for word in querywords if word.lower() not in filteredWords]
+        resultwords = [word for word in querywords if word.lower() not in filteredWords]
         return ' '.join(resultwords)
 
     def _getQueryValue(self, input):
@@ -59,19 +59,23 @@ class BaseController:
         """
 
         Feedback.log('OpenInBrowser: {}'.format(self._currentNote))
-        website = self._lastProvider
+        websiteList = self.getCurrentSearch()
 
         if cfg.getConfig().useSystemBrowser:
-            target = self.browser.formatTargetURL(website, query)
-            BaseController.openExternalLink(target)
+            for wl in websiteList:
+                target = self.browser.formatTargetURL(wl, query)
+                BaseController.openExternalLink(target)
             return
         
         self.beforeOpenBrowser()
-        self.browser.open(website, query, True)
+        self.browser.open(websiteList, query, True, True)
 
     def beforeOpenBrowser(self):
         raise Exception('Must be overriden')
 
     @staticmethod
     def openExternalLink(target):
+        raise Exception('Must be overriden')
+
+    def getCurrentSearch(self) -> List[str]:
         raise Exception('Must be overriden')

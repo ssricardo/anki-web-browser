@@ -43,5 +43,25 @@
             "url": "https://dict.leo.org/englisch-deutsch/{}"
         }
     ],
+    "groups":  [
+        {
+          "name": "Google",
+          "providerList": [
+            "Google Web",
+            "Google Images",
+            "Google Translator"
+          ]
+        },
+        {
+          "name": "German",
+          "providerList": [
+            "Dict.cc",
+            "Leo Dict",
+            "Pons DE",
+            "Forvo",
+            "NotExisting"
+          ]
+        }
+    ],
     "filteredWords": []
 }

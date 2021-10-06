@@ -12,6 +12,12 @@ var pages = [
         "page": "./config-providers.html",
         "loadFn": () => loadProviders(),
         "storeFn": () => saveProviders(),
+    },
+    {
+        "label": "Search Groups",
+        "page": "./config-groups.html",
+        "loadFn": () => initGroupsPage(),
+        "storeFn": () => saveGroups(),
     }
 ]
 

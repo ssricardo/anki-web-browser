@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<style type="text/css">
+</style>
+
+<script type="text/javascript">
+    function loadGroups() {
+        $('#tbRows').empty()
+        let groupList = curConfig.groups
+        groupList.forEach((g, index) => row(g, index))
+    }
+
+    function initGroupsPage() {
+        loadGroups()
+        loadProvidersForGroups()
+    }
+
+    function row(group, index) {
+        let row = $(`<tr>
+                        <td>${group.name}</td> 
+                        <td>${group.providerList.join('<br />')}</td> 
+                        <td class="rActions">
+                            <a href="#" onclick="editGroup(${index})" title="Edit Group"><img src="../../assets/edit.png" width="24" /></a>
+                            <a href="#" onclick="removeItem(${index})" title="Remove Group"><img src="../../assets/icon-trash.png" width="24" /></a>
+                            <a href="#" onclick="moveItem(${index}, -1)" title="Move Up"><img src="../../assets/icon-up.png" width="24" /></a>
+                            <a href="#" onclick="moveItem(${index}, +1)" title="Move Down"><img src="../../assets/icon-down.png" width="24" /></a>
+                        </td> 
+                    </tr>`)
+        $('#tbRows').append(row)
+    }
+
+    function moveItem(index, offset) {
+        const prov = curConfig.groups
+        const cur = prov[index]
+        prov[index] = prov[index + offset]
+        prov[index + offset] = cur
+        loadGroups()
+    }
+
+    function removeItem(index) {
+        curConfig.groups.splice(index, 1)
+        loadGroups()
+    }
+
+    // -------------------------------------------------- Form -------------------------------------------------
+
+    function loadProvidersForGroups() {
+        $('#ctProviders').empty()
+        let providerList = curConfig.providers
+        providerList.map(p => p.name).forEach((p, index) => checkboxProvider(p, index))
+    }
+
+    function checkboxProvider(provider, index) {
+        let cb = $(`<label><input type="checkbox" name="grProvider" data-provider="${provider}" /> ${provider}</label>`)
+        $('#ctProviders').append(cb)
+    }
+
+    function addNewGroup() {
+        // debugger
+        $('#iSelected').val(-1)
+        $('#itGrName').val("")
+
+        // TODO: corrige field cleaning
+
+        $('input:checkbox[name=grProvider]').each((_, item) => {
+            $(item).prop('checked', false)
+        })
+        showForm()
+    }
+
+    function editGroup(index) {
+        let group = curConfig.groups[index]
+        $('#iSelected').val(index)
+        $('#itGrName').val(group.name)
+
+        $('input:checkbox[name=grProvider]').each((_, item) => {
+            let jqItem = $(item) 
+            let cbProvider = jqItem.attr("data-provider")
+            jqItem.prop('checked', group.providerList.includes(cbProvider))
+        })
+
+        showForm()
+    }
+
+    function showForm() {
+        $('#pList').hide()
+        $('#pForm').show()
+    }
+
+    function confirmForm() {
+        let item = {}
+        let position = $('#iSelected').val()
+        item.name =  $('#itGrName').val().trim()
+        
+        let grProviders = []
+        $("input:checkbox[name=grProvider]:checked").each((_, item) => {
+            // if ($(item).is(":checked"))
+            grProviders.push($(item).attr("data-provider"));
+        });
+        item.providerList = grProviders
+
+        if (position >= 0) {
+            curConfig.groups[position] = item
+        } else {
+            curConfig.groups.push(item)
+        }
+        
+        closeForm()
+    }
+
+    function closeForm() {
+        $('#pForm').hide()
+        loadGroups()
+        $('#pList').show()
+    }
+
+    function saveGroups() {
+        console.log('Groups are updated directly on source reference')
+    }
+
+</script>
+
+<section>
+    <h3 class="h3Plus">
+        <span>Search Groups</span>
+        <a href="#" id="iconPlus" title="Add Groups" onclick="addNewGroup()"><img src="../../assets/plus-signal.png" width="24" /></a>
+    </h3>
+    <div id="pList" class="item_list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Providers</th>
+                    <th><img src="../../assets/gear-icon.png" width="24" /></th>
+                </tr>
+            </thead>
+            <tbody id="tbRows">
+            </tbody>
+        </table>        
+    </div>
+
+    <!-- === Form === -->
+    <div id="pForm" class="item_form">
+        <input id="iSelected" type="hidden" value="-1" />
+        <div>
+            <label>Name: </label>
+            <input id="itGrName" type="text" maxlength="50" />
+        </div>
+        <div>
+            <label>Providers: </label>
+            <fieldset id="ctProviders">
+            </fieldset>
+        </div>
+        <div class="pvActions">
+            <button onclick="closeForm()">
+                <img src="../../assets/stop.png" width="24" />
+                Cancel</button>
+            <button onclick="confirmForm()">
+                <img src="../../assets/go-icon.png" width="24" />
+                Confirm</button>
+        </div>
+    </div>
+
+</section>

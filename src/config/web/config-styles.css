@@ -43,7 +43,11 @@ a:hover {
 }
 
 #content {
-    margin-bottom: 60px;
+    margin: 10px 20px;
+}
+
+#content h3 {
+    font-size: 1.50em;
 }
 
 button {
@@ -97,5 +101,66 @@ input[type='checkbox'] {
     height: 20px;
     width: 20px;
     margin: 5px;
+    vertical-align: middle;
+}
+
+/* Secondary pages */
+.h3Plus {
+    display: flex;
+    justify-content: space-between;
+}
+
+#iconPlus {
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 10px;
+}
+
+.item_list table {
+    width: 100%;
+    font-size: small;
+}
+
+.item_list {
+    height: 380px;
+    overflow-y: scroll;        
+}
+
+.item_list tr:hover {
+    background-color: rgba(68, 68, 68, 0.6);
+}
+
+.item_list th {
+    border-bottom: 2px solid #777;
+}
+
+.item_list td {
+    padding: 10px 3px;
+    border-bottom: 1px dashed;
+}
+
+.item_list th:nth-child(0) {
+    width: 150px;
+}
+
+.rActions {
+    text-align: center;
+}
+
+.rActions > a {
+    margin: 3px;
+}
+
+.item_form {
+    display: none;
+}
+
+.item_form label {
+    width: 30%;
+    display: inline-block;
+    text-align: right;
+}
+
+#pvActions img {
     vertical-align: middle;
 }
