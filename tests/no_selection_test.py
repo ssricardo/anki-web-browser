@@ -20,34 +20,30 @@ app = QtWidgets.QApplication(sys.argv)
 
 _tested = ns.NoSelectionViewAdapter
 
-# TODO...
+# TODO: test no selection...
 
 @pytest.fixture()
 def setup():
     pass
 
-def test_loadOK():
+def bltest_loadOK():
     pass
     # cc.currentLocation = os.path.dirname(os.path.realpath(__file__))
     # os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
     # config = _tested.load()
     # assert config is not None
     # assert (config.keepBrowserOpened is True)
-    # assert (config.browserAlwaysOnTop is False)
-    # assert (5 == len(config.providers))
-
-
 
 
 if __name__ == '__main__':
-    if '-view' in sys.argv:        
-        main = QtWidgets.QMainWindow()
-        view = ns.NoSelectionController(main)
-        view.setFields({
-            1: "State",
-            2: "City",
-            3: "Stadion"
-        })
-        # view.open()
-        view.open()
-        sys.exit(app.exec_())
+    # if '-view' in sys.argv:
+    main = QtWidgets.QMainWindow()
+    view = ns.NoSelectionController(main)
+    view.setFields({
+        1: "State",
+        2: "City",
+        3: "Stadion"
+    })
+    # view.open()
+    view.open()
+    sys.exit(app.exec_())

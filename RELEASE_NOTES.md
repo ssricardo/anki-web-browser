@@ -1,5 +1,9 @@
 # Notes
 
+**5.0** | --/10/21
+
+* Introduce major feature: Search Groups 
+
 **4.3** | 24/08/21
 
 * Introduce new config view (prepare future features)
