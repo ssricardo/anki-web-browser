@@ -6,6 +6,7 @@ import os
 from anki_mocks_test import *
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
+sys.argv.append('-awb-test')
 
 from src.provider_selection import ProviderSelectionController
 

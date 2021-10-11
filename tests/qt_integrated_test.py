@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
+sys.argv.append('-awb-test')
 
 import src.browser as brw
 
@@ -48,13 +49,13 @@ def onSelected(field, value, isLink):
 if __name__ == '__main__':
     print('Running Qt App')
     app = QApplication(sys.argv)
-    web = brw.AwBrowser(None)
+    web = brw.AwBrowser(None, (800, 500))
     web.setSelectionHandler(onSelected)
     web.setFields([
         {'name': 'Front'},
         {'name': 'Back'},
         {'name': 'Example'}
     ])
-    web.open('https://images.google.com/?q={}', 'my app test')
+    web.open(['https://images.google.com/?q={}'], 'my app test')
     web.show()
     sys.exit(app.exec_())

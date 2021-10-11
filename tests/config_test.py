@@ -19,9 +19,13 @@ app = QtWidgets.QApplication(sys.argv)
 
 _tested = cc.ConfigService()
 
+_tested._configLocation = lambda: os.path.dirname(os.path.realpath(__file__)) + "/test-cfg.json"
+
+def setup():
+    if os.path.exists(_tested._configLocation()):
+        os.remove(_tested._configLocation())
 
 def test_loadOK():
-    cc.currentLocation = os.path.dirname(os.path.realpath(__file__))
     if os.path.exists(cc.currentLocation + '/' + cc.CONFIG_FILE):
         os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
     config = _tested.load()
@@ -39,8 +43,7 @@ def test_loadNoFile():
 
 
 def test_loadAndSave():
-    cc.currentLocation = os.path.dirname(os.path.realpath(__file__))
-    config = _tested.load(False)
+    config = _tested.load(True)
     providers = config.providers
     providers.append(cc.Provider('Yahoo', 'https://www.yahoo.com/{}'))
     config.keepBrowserOpened = True

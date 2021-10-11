@@ -7,6 +7,7 @@
 
 import os
 import urllib.parse
+from typing import List
 
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QUrl, Qt, QSize
@@ -81,7 +82,6 @@ class AwBrowser(QMainWindow):
     TITLE = 'Anki :: Web Browser Addon'
 
     _parent = None
-    _web = None
     _context = None
     _currentWeb = None
 
@@ -95,10 +95,8 @@ class AwBrowser(QMainWindow):
         # self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         self._menuDelegator = AwBrowserMenu([
-            StandardMenuOption('Open in new tab', lambda add: self.openUrl(add, True))
+            StandardMenuOption('Open in new tab', lambda add: self._openUrl(add, True))
         ])
-
-        # self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     @classmethod
     def singleton(cls, parent, sizeConfig: tuple):
@@ -306,23 +304,31 @@ class AwBrowser(QMainWindow):
         return website.format(urllib.parse.quote(query, encoding='utf8'))
 
     @exceptionHandler
-    def open(self, website, query: str, bringUp=True):
+    def open(self, website: List[str], query: str, bringUp=False, clearContext=False):
         """
             Loads a given page with its replacing part with its query, and shows itself
         """
 
+        if clearContext:
+            self.clearContext()
+
         self._context = query
         self._updateContextWidget()
-        target = self.formatTargetURL(website, query)
 
-        self.openUrl(target)
+        if len(website) > 0:
+            target = self.formatTargetURL(website[0], query)
+            self._openUrl(target)   # first tab
+
+            for ws in website[1:]:
+                target = self.formatTargetURL(ws, query)
+                self._openUrl(target, True)
 
         if bringUp:
             self.show()
             self.raise_()
             self.activateWindow()
 
-    def openUrl(self, address: str, newTab=False):
+    def _openUrl(self, address: str, newTab=False):
         if self._tabs.count() == 0 or newTab:
             self.add_new_tab(QUrl(address), 'Loading...')
         elif self._currentWeb:
@@ -398,7 +404,9 @@ class AwBrowser(QMainWindow):
         self._currentWeb.stop()
 
     def welcome(self):
-        self._web.setHtml(WELCOME_PAGE)
+        # self._web.setHtml(WELCOME_PAGE)
+        self.add_new_tab(None)
+        self._currentWeb.setHtml(WELCOME_PAGE)
         self._itAddress.setText('about:blank')
         self.show()
         self.raise_()
@@ -420,22 +428,22 @@ class AwBrowser(QMainWindow):
 
     def newProviderMenu(self, newTab=False):
         ctx = ProviderSelectionController()
-        callBack = self.reOpenQueryNewTab if newTab else self.reOpenSameQuery
+        callBack = self._reOpenQueryNewTab if newTab else self._reOpenSameQuery
         ctx.showCustomMenu(self._itAddress, callBack)
 
     @exceptionHandler
-    def reOpenSameQuery(self, website):
+    def _reOpenSameQuery(self, website):
         self.open(website, self._context)
 
     @exceptionHandler
-    def reOpenQueryNewTab(self, website):
+    def _reOpenQueryNewTab(self, website):
         self.add_new_tab()
         self.open(website, self._context)
 
     # ------------------------------------ Menu ---------------------------------------
 
     def load(self, qUrl):
-        self._web.load(qUrl)
+        self._openUrl(qUrl)
 
     #   ----------------- getter / setter  -------------------
 

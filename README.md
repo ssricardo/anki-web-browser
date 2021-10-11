@@ -15,7 +15,7 @@ Therefore, this addon provides 2 functionalities:
   * Or use one of the _no selection_ options (*from version 3.0*)
 * Import text and images directly from a website to current card
 
-> [ TODO ] All preview images below need to be updated, as current version has many improvements like Tabs
+> [ TODO ] Some preview images below need to be updated, as current version has many improvements like Tabs
 
 To check new features, check out [Release notes](RELEASE_NOTES)
 
@@ -110,6 +110,19 @@ This feature makes it really simple and fast to get some information from the In
 To speed up this process, here it's also possible to repeat the last action; that is, assign the content to the same field used last time (**on current Anki session**). 
 
 To do this, just *hold Ctrl* when right-clicking on some selected text or image.
+
+### Group Search
+
+> From version 5.0 
+
+Search in multiple websites (providers) in one shot. In the configurations, you can select a set of providers and save as a group.
+Later, in the search options, the groups are shown in the top. 
+This provider a high productivity. With 2 clicks, it's possible to search in many websites. 
+(Or even with a single click, using the _repeat_ feature)
+
+![Group Search](doc/anki-webb-groups.png)
+
+![Group Search](doc/anki-webb-add-group.gif)
 
 ## Limitation
 

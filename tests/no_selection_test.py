@@ -6,69 +6,44 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
+import pytest
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
+sys.argv.append('-awb-test')
 
-import unittest
 import src.no_selection as ns
+import src.config.main as cc
 
 from PyQt5 import QtWidgets
 app = QtWidgets.QApplication(sys.argv)
 
-class NoSelectionTester(unittest.TestCase):
+_tested = ns.NoSelectionViewAdapter
 
-    _tested = ns.NoSelectionViewAdapter
+# TODO: test no selection...
 
-    # TODO...
+@pytest.fixture()
+def setup():
+    pass
 
-    def test_loadOK(self):
-        cc.currentLocation = os.path.dirname(os.path.realpath(__file__))
-        os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
-        config = self._tested.load()
-        self.assertIsNotNone(config)
-        self.assertEqual(config.keepBrowserOpened, True)
-        self.assertEqual(config.browserAlwaysOnTop, False)
-        self.assertEqual(5, len(config.providers))
-
-    def test_validation(self):
-        c = cc.ConfigHolder(browserAlwaysOnTop=True)
-        self._tested.validate(c)
-        try:
-            c2 = 'Error'
-            self._tested.validate(c2)
-            self.fail() # exception expected
-        except:
-            pass
-        
-        try:
-            # c2 = cc.ConfigHolder()
-            # c2.providers = ['Oh no!']
-            # self._tested.validate(c2)
-            self.fail() # exception expected
-        except:
-            pass
-
-        try:
-            # c2 = cc.ConfigHolder(keepBrowserOpened='Now as string')
-            # self._tested.validate(c2)
-            self.fail() # exception expected
-        except:
-            pass
-
+def bltest_loadOK():
+    pass
+    # cc.currentLocation = os.path.dirname(os.path.realpath(__file__))
+    # os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
+    # config = _tested.load()
+    # assert config is not None
+    # assert (config.keepBrowserOpened is True)
 
 
 if __name__ == '__main__':
-    if '-view' in sys.argv:        
-        main = QtWidgets.QMainWindow()
-        view = ns.NoSelectionController(main)
-        view.setFields({
-            1: "State",
-            2: "City",
-            3: "Stadion"
-        })
-        # view.open()
-        view.open()
-        sys.exit(app.exec_())
-    else:
-        unittest.main()
+    # if '-view' in sys.argv:
+    main = QtWidgets.QMainWindow()
+    view = ns.NoSelectionController(main)
+    view.setFields({
+        1: "State",
+        2: "City",
+        3: "Stadion"
+    })
+    # view.open()
+    view.open()
+    sys.exit(app.exec_())

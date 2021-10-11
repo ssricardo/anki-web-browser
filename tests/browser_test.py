@@ -47,7 +47,7 @@ def setUp() -> None:
 def test_open():
     global mw
     b = AwBrowser(None, winSize)
-    b.open('localhost/search?', 'ricardo')
+    b.open(['localhost/search?'], 'ricardo')
 
 def test_clearContext():
     global mw
@@ -75,7 +75,7 @@ def test_close():
     b = AwBrowser(None, winSize)
     b.onClose()
 
-def test_installPage(self):
+def test_installPage():
     pass
 
 #   ---------------------- browser engine -------------------
@@ -97,9 +97,11 @@ def test_textSelection():
     engine.selectedText = customSelected
     bm.contextMenuEvent(FakeEvent())
 
+# Only for local tmp test, but test result will fail due to sys.exit
+@pytest.mark.skip
 def test_integratedView():
-    app = QApplication(sys.argv)
     sys.argv.append("--disable-web-security")
+    app = QApplication(sys.argv)
     main = QMainWindow()
     view = AwBrowser(main, (900, 600))
     view.setFields({0: 'Example', 1: 'Other'})
@@ -110,8 +112,8 @@ def test_integratedView():
         print('Link/Value: %s / %s' % (l, v))
 
     view.setSelectionHandler(handlerFn)
-    view.open('https://www.google.com/search?tbm=isch&tbs=isz:i&q={}', 'calendar', True)
-    # view.open('file:///home/ricardo/mobel.md', 'calendar', True)
+    view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}',
+               'https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}'], 'calendar', True)
     sys.exit(app.exec_())
 
 
@@ -129,6 +131,6 @@ if __name__ == '__main__':
         print('Link/Value: %s / %s' % (l, v))
 
         view.setSelectionHandler(handlerFn)
-        view.open('https://www.google.com/search?tbm=isch&tbs=isz:i&q={}', 'calendar', True)
+        view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}'], 'calendar', True)
         sys.exit(app.exec_())
 

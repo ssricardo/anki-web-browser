@@ -9,6 +9,7 @@
 # ---------------------------------- ================ ---------------------------------
 
 import json
+from typing import List
 
 from PyQt5.QtWidgets import QWidget
 from anki.hooks import addHook
@@ -22,12 +23,15 @@ from .no_selection import NoSelectionResult
 
 class EditorController(BaseController):
     _editorReference = None
-    _lastProvider = None
+    _curSearch: List[str] = None
 
     def __init__(self, ankiMw):
         super(EditorController, self).__init__(ankiMw)
 
         self.setupBindings()
+
+    def getCurrentSearch(self) -> List[str]:
+        return self._curSearch
 
 # ------------------------ Anki interface ------------------
 
@@ -85,7 +89,7 @@ class EditorController(BaseController):
 
     def _repeatProviderOrShowMenu(self):
         webView = self._editorReference.web
-        if not self._lastProvider:
+        if not self._curSearch:
             return self.createEditorMenu(webView, self.handleProviderSelection)
 
         super()._repeatProviderOrShowMenu(webView)
@@ -96,12 +100,12 @@ class EditorController(BaseController):
 
         return self._providerSelection.showCustomMenu(parent, menuFn)
 
-    def handleProviderSelection(self, result):
+    def handleProviderSelection(self, resultList: list):
         if not self._editorReference:
             raise Exception('Illegal state found. It was not possible to recover the reference to Anki editor')
         webview = self._editorReference.web
         query = self._getQueryValue(webview)
-        self._lastProvider = result
+        self._curSearch = resultList
         if not query:
             return
         Feedback.log('Query: %s' % query)
@@ -190,3 +194,4 @@ class EditorController(BaseController):
         newValue = self._currentNote.fields[fieldIndex] + '\n ' + value
         self._currentNote.fields[fieldIndex] = newValue
         self._editorReference.setNote(self._currentNote)
+

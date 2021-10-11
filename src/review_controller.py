@@ -4,6 +4,7 @@
 # This files is part of anki-web-browser addon
 # @author ricardo saturnino
 # ------------------------------------------------
+from typing import List
 
 from anki.hooks import addHook
 from aqt import mw
@@ -23,9 +24,11 @@ from .no_selection import NoSelectionResult
 controllerInstance = None
 editorCtrl = None
 
+
 @staticmethod
 def _ankiShowInfo(*args):
     tooltip(args, 3500)
+
 
 @staticmethod
 def _ankiShowError(*args):
@@ -34,7 +37,7 @@ def _ankiShowError(*args):
 
 def run():
     global controllerInstance, editorCtrl
-    
+
     Feedback.log('Setting anki-web-browser controller')
     Feedback.showInfo = _ankiShowInfo
     Feedback.showError = _ankiShowError
@@ -50,6 +53,7 @@ def run():
     if cfg.firstTime:
         controllerInstance.browser.welcome()
 
+
 # ----------------------------------------------------------------------------------
 
 class ReviewController(BaseController):
@@ -58,7 +62,7 @@ class ReviewController(BaseController):
     """
 
     browser = None
-    _lastProvider = None
+    _curSearch: List[str] = None
 
     def __init__(self, ankiMw):
         super(ReviewController, self).__init__(ankiMw)
@@ -99,7 +103,7 @@ class ReviewController(BaseController):
 
             if not ref.browser or cfg.getConfig().useSystemBrowser:
                 return originalFunction
-            
+
             ref.browser.clearContext()
             if not cfg.getConfig().keepBrowserOpened:
                 ref.browser.close()
@@ -111,41 +115,39 @@ class ReviewController(BaseController):
 
         return wrapped
 
-
     def wrap_shortcutKeys(self, fn):
         ref = self
 
         def customShortcut(self):
             sList = fn(self)
-            sList.append((cfg.getConfig().menuShortcut, \
-                lambda: ref.createReviewerMenu(
-                    ref._ankiMw.web, ref._ankiMw.web)))
+            sList.append((cfg.getConfig().menuShortcut,
+                          lambda: ref.createReviewerMenu(
+                              ref._ankiMw.web, ref._ankiMw.web)))
 
-            sList.append( (cfg.getConfig().repeatShortcut, ref._repeatProviderOrShowMenu ) )
+            sList.append((cfg.getConfig().repeatShortcut, ref._repeatProviderOrShowMenu))
             return sList
 
         return customShortcut
 
-# --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     @exceptionHandler
     def _repeatProviderOrShowMenu(self):
-        if not self._lastProvider:
+        if not self._curSearch:
             return self.createReviewerMenu(self._ankiMw.web, self._ankiMw.web)
 
         webView = self._ankiMw.web
         super()._repeatProviderOrShowMenu(webView)
 
-    def handleProviderSelection(self, result):
+    def handleProviderSelection(self, resultList: List[str]):
         Feedback.log('Handle provider selection')
         webview = self._ankiMw.web
         query = self._getQueryValue(webview)
-        self._lastProvider = result
+        self._curSearch = resultList
         if not query:
             return
-        Feedback.log('Query: %s' % query)        
+        Feedback.log('Query: %s' % query)
         self.openInBrowser(query)
-
 
     @exceptionHandler
     def createReviewerMenu(self, webView, menu):
@@ -163,7 +165,8 @@ class ReviewController(BaseController):
             noSelectionResult = self._noSelectionHandler.getValue()
             if noSelectionResult.resultType == NoSelectionResult.USE_FIELD:
                 if noSelectionResult.value < len(self._currentNote.fields):
-                    Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
+                    Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value,
+                                                           self._currentNote.fields[noSelectionResult.value]))
                     return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
 
         return self.prepareNoSelectionDialog(self._currentNote)
@@ -180,9 +183,11 @@ class ReviewController(BaseController):
             Feedback.log('USE_FIELD {}: {}'.format(resultValue.value, value))
 
         return self.openInBrowser(value)
-    
 
-# ---------------------------------- Events listeners ---------------------------------
+    def getCurrentSearch(self) -> List[str]:
+        return self._curSearch
+
+    # ---------------------------------- Events listeners ---------------------------------
 
     def onReviewerHandle(self, webView, menu):
         """
@@ -193,7 +198,6 @@ class ReviewController(BaseController):
             self.createReviewerMenu(webView, menu)
 
     def beforeOpenBrowser(self):
-        self.browser.setFields(None)   # clear fields
+        self.browser.setFields(None)  # clear fields
         self.browser.setInfoList(['No action available on Reviewer mode'])
         self.browser.setSelectionHandler(None)
-
