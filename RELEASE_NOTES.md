@@ -1,6 +1,6 @@
 # Notes
 
-**5.0** | --/10/21
+**5.0** | 11/10/21
 
 * Introduce major feature: Search Groups 
 

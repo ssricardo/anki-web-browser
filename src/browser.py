@@ -82,7 +82,6 @@ class AwBrowser(QMainWindow):
     TITLE = 'Anki :: Web Browser Addon'
 
     _parent = None
-    _web = None
     _context = None
     _currentWeb = None
 
@@ -405,7 +404,9 @@ class AwBrowser(QMainWindow):
         self._currentWeb.stop()
 
     def welcome(self):
-        self._web.setHtml(WELCOME_PAGE)
+        # self._web.setHtml(WELCOME_PAGE)
+        self.add_new_tab(None)
+        self._currentWeb.setHtml(WELCOME_PAGE)
         self._itAddress.setText('about:blank')
         self.show()
         self.raise_()
@@ -442,7 +443,7 @@ class AwBrowser(QMainWindow):
     # ------------------------------------ Menu ---------------------------------------
 
     def load(self, qUrl):
-        self._web.load(qUrl)
+        self._openUrl(qUrl)
 
     #   ----------------- getter / setter  -------------------
 
