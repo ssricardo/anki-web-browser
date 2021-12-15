@@ -20,6 +20,7 @@ from .config.main import service as cfg
 from .core import Feedback, Style
 from .exception_handler import exceptionHandler
 from .provider_selection import ProviderSelectionController
+from .result_handler import ResultHandler
 
 from .browser_context_menu import AwBrowserMenu, StandardMenuOption
 from .browser_engine import AwWebEngine
@@ -447,12 +448,12 @@ class AwBrowser(QMainWindow):
 
     #   ----------------- getter / setter  -------------------
 
-    def setFields(self, fList):
-        self._menuDelegator._fields = fList
+    def setFields(self, fList: dict):
+        self._menuDelegator.fields = fList
 
-    def setSelectionHandler(self, value):
+    def setResultHandler(self, value: ResultHandler):
         Feedback.log('Set selectionHandler % s' % str(value))
-        self._menuDelegator.selectionHandler = value
+        self._menuDelegator.resultHandler = value
 
     def setInfoList(self, data: list):
         self._menuDelegator.infoList = tuple(data)

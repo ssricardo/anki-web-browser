@@ -67,7 +67,7 @@ class ReviewController(BaseController):
     def __init__(self, ankiMw):
         super(ReviewController, self).__init__(ankiMw)
         self.browser = AwBrowser.singleton(ankiMw.web, cfg.getInitialWindowSize())
-        self.browser.setSelectionHandler(None)
+        self.browser.setResultHandler(None)
 
     def setupBindings(self):
         addHook('AnkiWebView.contextMenuEvent', self.onReviewerHandle)
@@ -200,4 +200,4 @@ class ReviewController(BaseController):
     def beforeOpenBrowser(self):
         self.browser.setFields(None)  # clear fields
         self.browser.setInfoList(['No action available on Reviewer mode'])
-        self.browser.setSelectionHandler(None)
+        self.browser.setResultHandler(None)

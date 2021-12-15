@@ -1,0 +1,41 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
+sys.argv.append('-awb-test')
+
+from PyQt5.QtCore import QUrl
+from src.result_handler import ResultHandler
+from tests.anki_mocks_test import *
+
+_tested = ResultHandler(TestEditor(), TestNote())
+
+ResultHandler.get_media_location = lambda: '/tmp'
+
+BASE64_URL = QUrl("data:image/png;base64,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")
+
+def test_is_base64Url():
+    assert _tested._is_base64("notUrl") is False
+    assert _tested._is_base64("https://secure.meetupstatic.com/photos/event/e/highres_484620014.jpeg") is False
+    assert _tested._is_base64("data:image/png;base64,iVBORw0KGgoAAAA") is True
+
+def test_handle_base64_image():
+    res = _tested._handle_base64_image(BASE64_URL.toString())
+
+    assert res.startswith('<img')
+    print(res)
+
+def test_handle_url_selection_base64():
+    _tested._config.imgMaxWidth = 100
+    _tested._config.imgMaxHeight = 90
+    _tested._handle_url_selection(1, BASE64_URL)
+
+def test_create_image_from_url():
+    pass
+    # _tested.create_image_from_url("https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images/resolution-example.png")
+
+def test_handle_text_selection():
+    res = _tested._handle_text_selection(1, "selectionTest")
+
+def test_pos_import():
+    _tested._process_pos_import('<img src="360_F_294621430_9dwIpCeY1LqefWCcU23pP9i11BgzOS0N.jpg">')

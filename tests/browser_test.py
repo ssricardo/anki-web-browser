@@ -2,7 +2,7 @@
 
 import pytest
 import sys
-from anki_mocks_test import *
+from tests.anki_mocks_test import *
 import os
 from PyQt5.QtWidgets import QMenu, QApplication, QMainWindow
 from PyQt5.QtCore import QPoint
@@ -16,6 +16,7 @@ app = QApplication(sys.argv)
 from src.browser import AwBrowser
 from src.browser_context_menu import AwBrowserMenu
 from src.core import Feedback
+from src.result_handler import ResultHandler
 
 from src import exception_handler
 exception_handler.RAISE_EXCEPTION = True
@@ -60,14 +61,14 @@ def customSelected():
 # TODO goto menu test
 def test_repeatableAction():
     bm = AwBrowserMenu([])
-    bm._fields = [
+    bm.fields = [
         {'name': 'Test'},
         {'name': 'Item2'}
     ]
-    bm.selectionHandler = lambda a, b, c: print(a, b, c)
+    bm.resultHandler = lambda a, b, c: print(a, b, c)
 
     assert not (bm._assignToLastField('Novo', False))
-    menuFn = bm._makeMenuAction(bm._fields[1], 'Test', False)
+    menuFn = bm._makeMenuAction(bm.fields[1], 'Test', False)
     menuFn()
     assert (bm._assignToLastField('Novo', False))
 
@@ -89,11 +90,11 @@ def test_textSelection():
     bm = AwBrowserMenu([])
     engine = MockWebEngine()
     bm.setCurrentWeb(engine)
-    bm._fields = {
+    bm.fields = {
         'name': 'Test',
         'name': 'Item2'
     }
-    bm.selectionHandler = lambda a, b, c: print(a, b, c)
+    bm.resultHandler = lambda a, b, c: print(a, b, c)
     engine.selectedText = customSelected
     bm.contextMenuEvent(FakeEvent())
 
@@ -111,7 +112,7 @@ def test_integratedView():
         print('Field: %s' % (f))
         print('Link/Value: %s / %s' % (l, v))
 
-    view.setSelectionHandler(handlerFn)
+    view.setResultHandler(handlerFn)
     view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}',
                'https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}'], 'calendar', True)
     sys.exit(app.exec_())
@@ -126,11 +127,15 @@ if __name__ == '__main__':
         view.setFields({0: 'Example', 1: 'Other'})
         view.setInfoList(['No action available'])
 
+    rHandler = ResultHandler(TestEditor(), TestNote())
+
     def handlerFn(f, v, l):
         print('Field: %s' % (f))
         print('Link/Value: %s / %s' % (l, v))
 
-        view.setSelectionHandler(handlerFn)
-        view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}'], 'calendar', True)
-        sys.exit(app.exec_())
+    rHandler.handle_selection = handlerFn
+
+    view.setResultHandler(rHandler)
+    view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}'], 'calendar', True)
+    sys.exit(app.exec_())
 

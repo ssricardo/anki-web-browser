@@ -14,9 +14,13 @@ import json
 import re
 import shutil
 
-currentLocation = os.path.dirname(os.path.realpath(__file__))
-CONFIG_LOCATION = currentLocation + '/..'
+# currentLocation = os.path.dirname(os.path.realpath(__file__))
+# CONFIG_LOCATION = currentLocation + '/..'
 CONFIG_FILE = 'config.json'
+
+
+def addon_home() -> str:
+    raise ValueError("Must be overiden")
 
 # ---------------------------------- Model ------------------------------
 
@@ -29,7 +33,9 @@ class ConfigHolder:
 
     def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop=False, menuShortcut=SHORTCUT, \
                  providers=[], initialBrowserSize=INITIAL_SIZE, enableDarkReader=False,
-                 repeatShortcut=RP_SHORT, useSystemBrowser=False, groups=[], filteredWords=[], **kargs):
+                 repeatShortcut=RP_SHORT, useSystemBrowser=False, groups=[], filteredWords=[],
+                 imgMaxHeight: int = None, imgMaxWidth: int = None, **kargs):
+
         self.providers = [Provider(**p) for p in providers]
         self.groups = [SearchGroup(**g) for g in groups]
         self.keepBrowserOpened = keepBrowserOpened
@@ -39,6 +45,9 @@ class ConfigHolder:
         self.repeatShortcut = repeatShortcut
         self.filteredWords = filteredWords
         self.initialBrowserSize = initialBrowserSize
+
+        self.imgMaxHeight = imgMaxHeight
+        self.imgMaxWidth = imgMaxWidth
         self.enableDarkReader = enableDarkReader
 
     def toDict(self):
@@ -52,7 +61,9 @@ class ConfigHolder:
             'groups': [g for g in map(lambda g: g.__dict__, self.groups)],
             'filteredWords': self.filteredWords,
             'initialBrowserSize': self.initialBrowserSize,
-            'enableDarkReader': self.enableDarkReader
+            'enableDarkReader': self.enableDarkReader,
+            'imgMaxHeight': self.imgMaxHeight,
+            'imgMaxWidth': self.imgMaxWidth
         })
         return res
 
@@ -147,7 +158,7 @@ class ConfigService:
         return conf
 
     def _configLocation(self):
-        return "%s/%s" % (currentLocation, CONFIG_FILE)
+        return "%s/%s" % (addon_home(), CONFIG_FILE)
 
     def save(self, config):
         """ Save a given configuration """
@@ -177,8 +188,11 @@ class ConfigService:
 
         checkedTypes = [(config, ConfigHolder), (config.keepBrowserOpened, bool), (config.browserAlwaysOnTop, bool),
                         (config.useSystemBrowser, bool), (config.providers, list),
-                        (config.enableDarkReader, bool)]
+                        (config.enableDarkReader, bool),
+                        (config.imgMaxHeight, int), (config.imgMaxWidth, int)]
         for current, expected in checkedTypes:
+            if current is None:
+                continue
             if not isinstance(current, expected):
                 raise ValueError('{} should be {}'.format(current, expected))
 

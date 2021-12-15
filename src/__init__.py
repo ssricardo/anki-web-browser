@@ -6,8 +6,11 @@ __version__ = "5.0"
 
 import sys
 import os
+from .config import main
 
 CWD = os.path.dirname(os.path.realpath(__file__))
+
+main.addon_home = lambda: CWD
 
 
 def logToConsole(*args, **kargs):

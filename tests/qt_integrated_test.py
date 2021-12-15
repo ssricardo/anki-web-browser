@@ -12,6 +12,8 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 sys.argv.append('-awb-test')
 
 import src.browser as brw
+from src.result_handler import ResultHandler
+from tests.anki_mocks_test import *
 
 def wiki(self):
     print('Load')
@@ -50,12 +52,12 @@ if __name__ == '__main__':
     print('Running Qt App')
     app = QApplication(sys.argv)
     web = brw.AwBrowser(None, (800, 500))
-    web.setSelectionHandler(onSelected)
-    web.setFields([
-        {'name': 'Front'},
-        {'name': 'Back'},
-        {'name': 'Example'}
-    ])
+
+    rHandler = ResultHandler(TestEditor(), TestNote())
+    rHandler.handle_selection = onSelected
+
+    web.setResultHandler(rHandler)
+    web.setFields({0: 'Front', 1: 'Other', 2: 'Example'})
     web.open(['https://images.google.com/?q={}'], 'my app test')
     web.show()
     sys.exit(app.exec_())
