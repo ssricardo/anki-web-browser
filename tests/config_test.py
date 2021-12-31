@@ -6,16 +6,16 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 sys.argv.append('-awb-test')
 
+from aqt.qt import *
 from src.config import main as cc
-from PyQt5 import QtWidgets
 
-app = QtWidgets.QApplication(sys.argv)
+app = QApplication(sys.argv)
 
 _tested = cc.ConfigService()
 
@@ -107,7 +107,7 @@ def test_getInitialWindowSizeInvalid():
 
 # if __name__ == '__main__':
 #     if '-view' in sys.argv:
-#         main = QtWidgets.QMainWindow()
+#         main = QMainWindow()
 #         view = cc.ConfigController(main)
 #         view.open()
-#         sys.exit(app.exec_())
+#         sys.exit(app.exec())

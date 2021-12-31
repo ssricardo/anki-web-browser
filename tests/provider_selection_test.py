@@ -1,16 +1,17 @@
 # Testing code for notemenu module
 
-import unittest
-import sys
 import os
+import sys
+import unittest
+
 from anki_mocks_test import *
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 sys.argv.append('-awb-test')
 
+from aqt.qt import *
 from src.provider_selection import ProviderSelectionController
 
-from PyQt5.QtWidgets import QMenu, QAction, QApplication
 
 class FakeBrowser:
     def open(self, website, query):

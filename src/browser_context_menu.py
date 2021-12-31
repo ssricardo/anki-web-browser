@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 from typing import List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineContextMenuData
-from PyQt5.QtWidgets import *
+from aqt.qt import *
 
-from .core import Label, Feedback
+from .core import Feedback, Label
+
+if qtmajor == 5:
+    MediaTypeImage = QWebEngineContextMenuData.MediaType.MediaTypeImage
+elif qtmajor == 6:
+    MediaTypeImage = QWebEngineContextMenuRequest.MediaType.MediaTypeImage
+else:
+    raise RuntimeError("unkown qt version")
 
 
 class StandardMenuOption:
-
     def __init__(self, name: str, fn):
         self.name = name
         self.fn = fn
@@ -17,11 +21,11 @@ class StandardMenuOption:
 
 class AwBrowserMenu:
     """
-        Manages context menu, considering whether options should enabled and actions
+    Manages context menu, considering whether options should enabled and actions
     """
 
     infoList = tuple()
-    _fields = []
+    _fields = {}
     selectionHandler = None
     _lastAssignedField = None
 
@@ -34,8 +38,8 @@ class AwBrowserMenu:
 
     def _makeMenuAction(self, field, value, isLink):
         """
-            Creates correct operations for the context menu selection.
-            Only with lambda, it would repeat only the last element
+        Creates correct operations for the context menu selection.
+        Only with lambda, it would repeat only the last element
         """
 
         def _processMenuSelection():
@@ -46,12 +50,16 @@ class AwBrowserMenu:
 
     def contextMenuEvent(self, evt):
         """
-            Handles the context menu in the web view.
-            Shows and handle options (from field list), only if in edit mode.
+        Handles the context menu in the web view.
+        Shows and handle options (from field list), only if in edit mode.
         """
 
         if not (self._fields and self.selectionHandler):
-            Feedback.log("No fields assigned" if not self._fields else "No selectionHandler assigned")
+            Feedback.log(
+                "No fields assigned"
+                if not self._fields
+                else "No selectionHandler assigned"
+            )
             return self.createInfoMenu(evt)
 
         isLink = False
@@ -60,50 +68,64 @@ class AwBrowserMenu:
             isLink = False
             value = self._web.selectedText()
         else:
-            if (self._web.page().contextMenuData().mediaType() == QWebEngineContextMenuData.MediaTypeImage
-                    and self._web.page().contextMenuData().mediaUrl()):
+            if (
+                self._contextMenuRequest().mediaType() == MediaTypeImage
+                and self._contextMenuRequest().mediaUrl()
+            ):
                 isLink = True
-                value = self._web.page().contextMenuData().mediaUrl()
-                Feedback.log('Link: ' + value.toString())
-                Feedback.log('toLocal: ' + value.toLocalFile())
+                value = self._contextMenuRequest().mediaUrl()
+                Feedback.log("Link: " + value.toString())
+                Feedback.log("toLocal: " + value.toLocalFile())
 
                 if not self._checkSuffix(value):
                     return
 
         if not value:
-            Feedback.log('No value')
+            Feedback.log("No value")
             return self.createInfoMenu(evt)
 
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if self._assignToLastField(value, isLink):
                 return
 
         self.createCtxMenu(value, isLink, evt)
 
+    def _contextMenuRequest(self):
+        if qtmajor == 5:
+            return self._web.page().contextMenuData()
+        elif qtmajor == 6:
+            return self._web.lastContextMenuRequest()
+        else:
+            raise RuntimeError("unkown qt version")
+
     def _checkSuffix(self, value):
         if value and not value.toString().endswith(("jpg", "jpeg", "png", "gif")):
             msgLink = value.toString()
             if len(value.toString()) > 100:
-                msgLink = msgLink[:60] + '...' + msgLink[30::-1]
-            answ = QMessageBox.question(self._web, 'Anki support',
-                                        """This link may not be accepted by Anki: \n\n "%s" \n
+                msgLink = msgLink[:60] + "..." + msgLink[30::-1]
+            answ = QMessageBox.question(
+                self._web,
+                "Anki support",
+                """This link may not be accepted by Anki: \n\n "%s" \n
                         Usually the suffix should be one of 
                         (jpg, jpeg, png, gif).
-                        Try it anyway? """ % msgLink, QMessageBox.Yes | QMessageBox.No)
+                        Try it anyway? """
+                % msgLink,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
 
-            if answ != QMessageBox.Yes:
+            if answ != QMessageBox.StandardButton.Yes:
                 return False
 
         return True
 
     def createCtxMenu(self, value, isLink, evt):
-        """ Creates and configures the menu itself """
+        """Creates and configures the menu itself"""
 
         m = QMenu(self._web)
-        m.addAction(QAction('Copy', m,
-                            triggered=lambda: self._copy(value)))
+        m.addAction(QAction("Copy", m, triggered=lambda: self._copy(value)))
         if isLink:
-            Feedback.log('isLink!')
+            Feedback.log("isLink!")
             for op in self.generationOptions:
                 m.addAction(QAction(op.name, m, triggered=lambda: op.fn(value)))
             m.addSeparator()
@@ -113,17 +135,18 @@ class AwBrowserMenu:
         m.addAction(labelAct)
         m.setTitle(Label.BROWSER_ASSIGN_TO)
         for index, label in self._fields.items():
-            act = QAction(label, m,
-                          triggered=self._makeMenuAction(index, value, isLink))
+            act = QAction(
+                label, m, triggered=self._makeMenuAction(index, value, isLink)
+            )
             m.addAction(act)
 
-        action = m.exec_(self._web.mapToGlobal(evt.pos()))
+        action = m.exec(self._web.mapToGlobal(evt.pos()))
 
     def createInfoMenu(self, evt):
-        """ Creates and configures a menu with only some information """
+        """Creates and configures a menu with only some information"""
 
         m = QMenu(self._web)
-        linkUrl = self._web.page().contextMenuData().linkUrl()
+        linkUrl = self._contextMenuRequest().linkUrl()
         if linkUrl and len(self.generationOptions) > 0:
             for op in self.generationOptions:
                 m.addAction(QAction(op.name, m, triggered=lambda: op.fn(linkUrl)))
@@ -134,7 +157,7 @@ class AwBrowserMenu:
             act.setEnabled(False)
             m.addAction(act)
 
-        action = m.exec_(self._web.mapToGlobal(evt.pos()))
+        action = m.exec(self._web.mapToGlobal(evt.pos()))
 
     def _copy(self, value):
         if not value:

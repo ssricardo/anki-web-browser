@@ -2,60 +2,55 @@
 # Uses PyQt4
 # Must not be packed within the distributable file
 
-import sys
 import os
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+import sys
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
-sys.argv.append('-awb-test')
+from aqt.qt import *
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../")
+sys.argv.append("-awb-test")
 
 import src.browser as brw
 
+
 def wiki(self):
-    print('Load')
-    self.load(QUrl('https://en.wikipedia.org'))
+    print("Load")
+    self.load(QUrl("https://en.wikipedia.org"))
+
 
 def menu(self, evt):
     mn = QMenu(self)
-    ac1 = QAction('Unload', mn, 
-            triggered=lambda: self.unload())
+    ac1 = QAction("Unload", mn, triggered=lambda: self.unload())
     mn.addAction(ac1)
 
-    ac2 = QAction('Close', mn, 
-            triggered=lambda: self.onClose())
+    ac2 = QAction("Close", mn, triggered=lambda: self.onClose())
     mn.addAction(ac2)
 
-    ac3 = QAction('Wikipedia', mn, 
-            triggered=lambda: wiki(self))
+    ac3 = QAction("Wikipedia", mn, triggered=lambda: wiki(self))
     mn.addAction(ac3)
 
-    ac4 = QAction('Print link', mn, 
-            triggered=lambda: print(self.linkUrl()))
+    ac4 = QAction("Print link", mn, triggered=lambda: print(self.linkUrl()))
     mn.addAction(ac4)
 
-    ac4 = QAction('Print text', mn, 
-            triggered=lambda: print(self.selectedText()))
+    ac4 = QAction("Print text", mn, triggered=lambda: print(self.selectedText()))
     mn.addAction(ac4)
 
-    action = mn.exec_(self.mapToGlobal(evt.pos()))
+    action = mn.exec(self.mapToGlobal(evt.pos()))
 
-#browser.AwBrowser.contextMenuEvent = menu
+
+# browser.AwBrowser.contextMenuEvent = menu
+
 
 def onSelected(field, value, isLink):
-        print('Field {} (link? {}): {}'.format(field, isLink, value))
+    print("Field {} (link? {}): {}".format(field, isLink, value))
 
-if __name__ == '__main__':
-    print('Running Qt App')
+
+if __name__ == "__main__":
+    print("Running Qt App")
     app = QApplication(sys.argv)
     web = brw.AwBrowser(None, (800, 500))
     web.setSelectionHandler(onSelected)
-    web.setFields([
-        {'name': 'Front'},
-        {'name': 'Back'},
-        {'name': 'Example'}
-    ])
-    web.open(['https://images.google.com/?q={}'], 'my app test')
+    web.setFields({"name": "Front", "name": "Back", "name": "Example"})
+    web.open(["https://images.google.com/?q={}"], "my app test")
     web.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
