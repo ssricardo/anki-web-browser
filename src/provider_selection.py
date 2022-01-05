@@ -5,9 +5,11 @@
 # --------------------------------------------
 from typing import List
 
+from aqt.qt import *
+
+from .config.main import Provider, SearchGroup
+from .config.main import service as cfgService
 from .core import Label, Style
-from .config.main import service as cfgService, Provider, SearchGroup
-from PyQt5.QtWidgets import QMenu, QAction
 
 
 class ProviderSelectionController:
@@ -19,13 +21,13 @@ class ProviderSelectionController:
         self._groupList = cfgService.getConfig().groups
 
     def showCustomMenu(self, menuParent, menuFn):
-        """ Builds the addon entry in the context menu, adding options according to the providers """
+        """Builds the addon entry in the context menu, adding options according to the providers"""
 
         if not menuFn:
-            raise AttributeError('Callback Fn must be not null')
+            raise AttributeError("Callback Fn must be not null")
 
         if not menuParent:
-            raise AttributeError('menuParent must be not null')
+            raise AttributeError("menuParent must be not null")
 
         submenu = QMenu(Label.CARD_MENU, menuParent)
         submenu.setStyleSheet(Style.MENU_STYLE)
@@ -36,10 +38,13 @@ class ProviderSelectionController:
             providerList = list(map(self._getProviderUrl, group.providerList))
 
             indexShortcut += 1
-            numShortcut = '(&' + str(indexShortcut) + ') ' if indexShortcut < 10 else ''
+            numShortcut = "(&" + str(indexShortcut) + ") " if indexShortcut < 10 else ""
 
-            act = QAction(numShortcut + group.name, submenu,
-                          triggered=self._makeMenuAction(providerList, menuFn))
+            act = QAction(
+                numShortcut + group.name,
+                submenu,
+                triggered=self._makeMenuAction(providerList, menuFn),
+            )
             submenu.addAction(act)
 
         if grList:
@@ -48,9 +53,12 @@ class ProviderSelectionController:
         pList = self._providerList
         for prov in pList:
             indexShortcut += 1
-            numShortcut = '(&' + str(indexShortcut) + ') ' if indexShortcut < 10 else ''
-            act = QAction(numShortcut + prov.name, submenu,
-                          triggered=self._makeMenuAction([prov.url], menuFn))
+            numShortcut = "(&" + str(indexShortcut) + ") " if indexShortcut < 10 else ""
+            act = QAction(
+                numShortcut + prov.name,
+                submenu,
+                triggered=self._makeMenuAction([prov.url], menuFn),
+            )
             submenu.addAction(act)
 
         if not isinstance(menuParent, QMenu):
@@ -63,8 +71,9 @@ class ProviderSelectionController:
 
     def _makeMenuAction(self, valueList: list, menuCallback):
         """
-            Creates correct action for the context menu selection. Otherwise, it would repeat only the last element
+        Creates correct action for the context menu selection. Otherwise, it would repeat only the last element
         """
         return lambda: menuCallback(valueList)
+
 
 # -----------------------------------------------------------------------------
