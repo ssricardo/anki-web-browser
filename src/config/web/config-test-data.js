@@ -9,6 +9,18 @@ let config = {
     {
       "name": "LinkedIn",
       "url": "https://linkedin.com/{}"
+    },
+    {
+      "name": "Insta2",
+      "url": "https://instagram2.com/{}"
+    },
+    {
+      "name": "Insta3",
+      "url": "https://instagram4.com/{}"
+    },
+    {
+      "name": "Insta4",
+      "url": "https://instagram4.com/{}"
     }
   ],
   "groups": [

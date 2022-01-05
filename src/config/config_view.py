@@ -37,7 +37,7 @@ class ConfigView(QDialog):
         browser.page().loadFinished.connect(self.onLoadFinish)
         browser.setUrl(QUrl.fromLocalFile(os.path.join(CURDIR, "web", "config.html")))
         browser.contextMenuEvent = self.contextMenu
-
+        browser.setZoomFactor(1)
         mainLayout.addWidget(browser)
 
         widgetActions = QWidget(mainLayout.widget())

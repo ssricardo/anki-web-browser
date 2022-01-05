@@ -13,21 +13,23 @@ sys.argv.append('-awb-test')
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+import json
 app = QtWidgets.QApplication(sys.argv)
 
 from src.config import config_view as cc
 from src.config.main import ConfigHolder, Provider, SearchGroup
 
-main = QtWidgets.QMainWindow()
-view = cc.ConfigView(None)
-view.save = lambda cfg: print(vars(cfg))
-config = ConfigHolder(providers=[Provider("Insta", "https://instagram.com/{}").__dict__,
+if __name__ == '__main__':
+    main = QtWidgets.QMainWindow()
+    view = cc.ConfigView(None)
+    view.save = lambda cfg: print(vars(cfg))
+    config = ConfigHolder(providers=[Provider("Insta", "https://instagram.com/{}").__dict__,
                                  Provider("LinkedIn", "https://linkedin.com/{}").__dict__
                                  ], groups=[SearchGroup("Others", ["Insta", "LinkedIn"]).__dict__])
-config.enableDarkReader = True
+    config.enableDarkReader = True
 
-import json
-print(json.dumps(config, default=lambda o: o.__dict__, indent=2))
 
-view.open(config)
-sys.exit(app.exec_())
+    print(json.dumps(config, default=lambda o: o.__dict__, indent=2))
+
+    view.open(config)
+    sys.exit(app.exec_())
