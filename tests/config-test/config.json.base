@@ -1,0 +1,33 @@
+{
+  "keepBrowserOpened": false,
+  "browserAlwaysOnTop": true,
+  "useSystemBrowser": false,
+  "menuShortcut": "Ctrl+Shift+B",
+  "repeatShortcut": "F10",
+  "providers": [
+    {
+      "name": "Google Search",
+      "url": "https://google.com/search?q={}"
+    },
+    {
+      "name": "Google 2",
+      "url": "https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}"
+    },
+    {
+      "name": "Forvo",
+      "url": "https://forvo.com/search/{}/"
+    }
+  ],
+  "groups": [
+    {
+      "name": "Google",
+      "providerList": [
+        "Google Search",
+        "Google Translate"
+      ]
+    }
+  ],
+  "filteredWords": [],
+  "initialBrowserSize": "1080x500",
+  "enableDarkReader": false
+}

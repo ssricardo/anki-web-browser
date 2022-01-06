@@ -6,17 +6,19 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
 sys.argv.append('-awb-test')
 
-import src.no_selection as ns
 import src.config.main as cc
+import src.no_selection as ns
+from aqt.qt import *
 
-from PyQt5 import QtWidgets
-app = QtWidgets.QApplication(sys.argv)
+app = QApplication(sys.argv)
 
 _tested = ns.NoSelectionViewAdapter
 
@@ -37,7 +39,7 @@ def bltest_loadOK():
 
 if __name__ == '__main__':
     # if '-view' in sys.argv:
-    main = QtWidgets.QMainWindow()
+    main = QMainWindow()
     view = ns.NoSelectionController(main)
     view.setFields({
         1: "State",
@@ -46,4 +48,4 @@ if __name__ == '__main__':
     })
     # view.open()
     view.open()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

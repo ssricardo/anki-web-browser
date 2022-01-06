@@ -11,10 +11,10 @@
 import os
 from typing import List
 
-from PyQt5.QtWidgets import QWidget
 from anki.hooks import addHook
 from aqt.editor import Editor
 from aqt import mw
+from aqt.qt import *
 
 from .base_controller import BaseController
 from .config.main import service as cfg
@@ -36,10 +36,10 @@ class EditorController(BaseController):
     def getCurrentSearch(self) -> List[str]:
         return self._curSearch
 
-# ------------------------ Anki interface ------------------
+    # ------------------------ Anki interface ------------------
 
     def setupBindings(self):
-        addHook('EditorWebView.contextMenuEvent', self.onEditorHandle)
+        addHook("EditorWebView.contextMenuEvent", self.onEditorHandle)
         addHook("setupEditorShortcuts", self.setupShortcuts)
         addHook("loadNote", self.newLoadNote)
 
@@ -51,10 +51,10 @@ class EditorController(BaseController):
 # directory: '/home/ricardo/.local/share/Anki2/Ricardo/collection.anki2/21-12-14-22-45-44175.png'
 
     def newLoadNote(self, editor: Editor):
-        """ Listens when the current showed card is changed.
-            Send msg to browser to cleanup its state"""
+        """Listens when the current showed card is changed.
+        Send msg to browser to cleanup its state"""
 
-        Feedback.log('loadNote')
+        Feedback.log("loadNote")
 
         self._editorReference = editor
         if not self.browser:
@@ -70,19 +70,19 @@ class EditorController(BaseController):
 
     def onEditorHandle(self, webView, menu):
         """
-            Wrapper to the real context menu handler on the editor;
-            Also holds a reference to the editor
+        Wrapper to the real context menu handler on the editor;
+        Also holds a reference to the editor
         """
 
         self._editorReference = webView.editor
         self.createEditorMenu(menu, self.handleProviderSelection)
 
-    def setupShortcuts(self, scuts:list, editor):
+    def setupShortcuts(self, scuts: list, editor):
         self._editorReference = editor
         scuts.append((cfg.getConfig().menuShortcut, self._showBrowserMenu))
         scuts.append((cfg.getConfig().repeatShortcut, self._repeatProviderOrShowMenu))
 
-# ------------------------ Addon operation -------------------------
+    # ------------------------ Addon operation -------------------------
 
     def _showBrowserMenu(self, parent=None):
         if not parent:
@@ -102,21 +102,22 @@ class EditorController(BaseController):
 
         super()._repeatProviderOrShowMenu(webView)
 
-    
     def createEditorMenu(self, parent, menuFn):
-        """ Deletegate the menu creation and work related to providers """
+        """Deletegate the menu creation and work related to providers"""
 
         return self._providerSelection.showCustomMenu(parent, menuFn)
 
     def handleProviderSelection(self, resultList: list):
         if not self._editorReference:
-            raise Exception('Illegal state found. It was not possible to recover the reference to Anki editor')
+            raise Exception(
+                "Illegal state found. It was not possible to recover the reference to Anki editor"
+            )
         webview = self._editorReference.web
         query = self._getQueryValue(webview)
         self._curSearch = resultList
         if not query:
             return
-        Feedback.log('Query: %s' % query)
+        Feedback.log("Query: %s" % query)
         self._currentNote = self._editorReference.note
         self.openInBrowser(query)
 
@@ -129,34 +130,44 @@ class EditorController(BaseController):
             if noSelectionResult.resultType == NoSelectionResult.USE_FIELD:
                 self._editorReference.currentField = noSelectionResult.value
                 if noSelectionResult.value < len(self._currentNote.fields):
-                    Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value, self._currentNote.fields[noSelectionResult.value]))
-                    return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
+                    Feedback.log(
+                        "USE_FIELD {}: {}".format(
+                            noSelectionResult.value,
+                            self._currentNote.fields[noSelectionResult.value],
+                        )
+                    )
+                    return self._filterQueryValue(
+                        self._currentNote.fields[noSelectionResult.value]
+                    )
 
         note = webview.editor.note
         return self.prepareNoSelectionDialog(note)
 
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
-        if not resultValue or \
-                resultValue.resultType in (NoSelectionResult.NO_RESULT, NoSelectionResult.SELECTION_NEEDED):
-            Feedback.showInfo('No value selected')
+        if not resultValue or resultValue.resultType in (
+            NoSelectionResult.NO_RESULT,
+            NoSelectionResult.SELECTION_NEEDED,
+        ):
+            Feedback.showInfo("No value selected")
             return
         value = resultValue.value
         if resultValue.resultType == NoSelectionResult.USE_FIELD:
-            self._editorReference.currentField = resultValue.value    # fieldIndex
+            self._editorReference.currentField = resultValue.value  # fieldIndex
             value = self._currentNote.fields[resultValue.value]
             value = self._filterQueryValue(value)
-            Feedback.log('USE_FIELD {}: {}'.format(resultValue.value, value))
+            Feedback.log("USE_FIELD {}: {}".format(resultValue.value, value))
 
         return self.openInBrowser(value)
 
-# ---------------------------------- --------------- ---------------------------------
+    # ---------------------------------- --------------- ---------------------------------
     def beforeOpenBrowser(self):
         self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
         note = self._currentNote
-        fieldList = note.model()['flds']
-        fieldsNames = {ind: val for ind, val in enumerate(map(lambda i: i['name'], fieldList))}
-        self.browser.setInfoList(['No action available', 'Required: Text selected or link to image'])
+        fieldList = note.model()["flds"]
+        fieldsNames = {
+            ind: val for ind, val in enumerate(map(lambda i: i["name"], fieldList))
+        }
+        self.browser.setInfoList(
+            ["No action available", "Required: Text selected or link to image"]
+        )
         self.browser.setFields(fieldsNames)
-
-
-

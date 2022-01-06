@@ -1,5 +1,10 @@
 # Notes
 
+**6.0** | 06/01/22
+
+* Support Anki 2.50 / PyQt 6 (from @RisingOrange)
+* Fix reading config from wrong location 
+
 **5.0** | 11/10/21
 
 * Introduce major feature: Search Groups 

@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.Qt import QIcon
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QPushButton, QApplication, QStyle
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
-import os
 import json
+import os
+
+from aqt.qt import *
 
 from .main import ConfigHolder
 
@@ -16,16 +12,18 @@ CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 # noinspection PyPep8Naming,PyMethodMayBeStatic
 class ConfigView(QDialog):
-
     def __init__(self, myParent: QWidget):
         self._config = ConfigHolder()
 
         QDialog.__init__(self, myParent)
         self.setWindowTitle("Anki Web Browser :: Config")
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.setWindowFlags(Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+        self.setWindowFlags(
+            Qt.WindowType.WindowMinMaxButtonsHint
+            | Qt.WindowType.WindowCloseButtonHint
+        )
         self.setFixedSize(1080, 600)
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -62,8 +60,8 @@ class ConfigView(QDialog):
         btCancel.clicked.connect(lambda: self.onCancelClick())
         btActionsBox.addWidget(btCancel)
 
-        btSave.setIcon(self.getIcon(QStyle.SP_DialogApplyButton))
-        btCancel.setIcon(self.getIcon(QStyle.SP_DialogCancelButton))
+        btSave.setIcon(self.getIcon(QStyle.StandardPixmap.SP_DialogApplyButton))
+        btCancel.setIcon(self.getIcon(QStyle.StandardPixmap.SP_DialogCancelButton))
 
         mainLayout.addWidget(widgetActions)
 
@@ -73,11 +71,12 @@ class ConfigView(QDialog):
         return QIcon(QApplication.style().standardIcon(qtStyle))
 
     def onLoadFinish(self, result):
-        self.web.page().runJavaScript('loadConfig(%s)' %
-                                      json.dumps(self._config.toDict()))
+        self.web.page().runJavaScript(
+            "loadConfig(%s)" % json.dumps(self._config.toDict())
+        )
 
     def onSaveClick(self):
-        jsReadConfig = 'saveAndGetConfig()'
+        jsReadConfig = "saveAndGetConfig()"
 
         def storeConfig(cfg):
             conf = ConfigHolder(**cfg)

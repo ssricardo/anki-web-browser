@@ -6,30 +6,36 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
-import sys
 import os
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
-sys.argv.append('-awb-test')
+import sys
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from aqt.qt import *
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../")
+sys.argv.append("-awb-test")
+
+
 import json
-app = QtWidgets.QApplication(sys.argv)
+app = QApplication(sys.argv)
 
 from src.config import config_view as cc
 from src.config.main import ConfigHolder, Provider, SearchGroup
 
 if __name__ == '__main__':
-    main = QtWidgets.QMainWindow()
+    main = QMainWindow()
     view = cc.ConfigView(None)
     view.save = lambda cfg: print(vars(cfg))
-    config = ConfigHolder(providers=[Provider("Insta", "https://instagram.com/{}").__dict__,
-                                 Provider("LinkedIn", "https://linkedin.com/{}").__dict__
-                                 ], groups=[SearchGroup("Others", ["Insta", "LinkedIn"]).__dict__])
+    config = ConfigHolder(
+    providers=[
+        Provider("Insta", "https://instagram.com/{}").__dict__,
+        Provider("LinkedIn", "https://linkedin.com/{}").__dict__,
+    ],
+    groups=[SearchGroup("Others", ["Insta", "LinkedIn"]).__dict__],
+)
     config.enableDarkReader = True
 
 
     print(json.dumps(config, default=lambda o: o.__dict__, indent=2))
 
     view.open(config)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

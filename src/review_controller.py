@@ -10,7 +10,7 @@ from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import QAction
 from aqt.reviewer import Reviewer
-from aqt.utils import tooltip, showWarning, openLink
+from aqt.utils import openLink, showWarning, tooltip
 
 from .base_controller import BaseController
 from .browser import AwBrowser

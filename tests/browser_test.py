@@ -1,24 +1,24 @@
 # Testing code for browser module
 
-import pytest
-import sys
-from tests.anki_mocks_test import *
 import os
-from PyQt5.QtWidgets import QMenu, QApplication, QMainWindow
-from PyQt5.QtCore import QPoint
+import sys
+
+import pytest
+from aqt.qt import QApplication, QMainWindow, QPoint
+
+from tests.anki_mocks_test import *
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 sys.argv.append('-awb-test')
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 app = QApplication(sys.argv)
 
+from src import exception_handler
 from src.browser import AwBrowser
 from src.browser_context_menu import AwBrowserMenu
 from src.core import Feedback
 from src.result_handler import ResultHandler
 
-from src import exception_handler
 exception_handler.RAISE_EXCEPTION = True
 
 def testLog(*args, **vargs):
@@ -115,7 +115,7 @@ def test_integratedView():
     view.setResultHandler(handlerFn)
     view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}',
                'https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}'], 'calendar', True)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':
@@ -137,5 +137,5 @@ if __name__ == '__main__':
 
     view.setResultHandler(rHandler)
     view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}'], 'calendar', True)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

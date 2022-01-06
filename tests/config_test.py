@@ -6,28 +6,33 @@
 # @author ricardo saturnino
 # ------------------------------------------------
 
-import sys
 import os
+import sys
+import shutil
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 sys.argv.append('-awb-test')
 
+from aqt.qt import *
 from src.config import main as cc
-from PyQt5 import QtWidgets
 
-app = QtWidgets.QApplication(sys.argv)
+app = QApplication(sys.argv)
+CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 _tested = cc.ConfigService()
 
-_tested._configLocation = lambda: os.path.dirname(os.path.realpath(__file__)) + "/test-cfg.json"
+_tested._configLocation = lambda *args: "%s/%s" % (CUR_DIR, "test-cfg.json")
+_tested._configLocationV5 = lambda *args: "%s/config-test/%s" % (CUR_DIR, "config.json")
 
+
+# noinspection PyProtectedMember
 def setup():
     if os.path.exists(_tested._configLocation()):
         os.remove(_tested._configLocation())
 
 def test_loadOK():
-    if os.path.exists(cc.currentLocation + '/' + cc.CONFIG_FILE):
-        os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
+    # if os.path.exists(cc.currentLocation + '/' + cc.CONFIG_FILE):
+    #     os.remove(cc.currentLocation + '/' + cc.CONFIG_FILE)
     config = _tested.load()
     assert config is not None
     assert (config.keepBrowserOpened is True)
@@ -37,7 +42,7 @@ def test_loadOK():
 def test_loadNoFile():
     try:
         config = _tested.load(False)
-        assert 1 == 2  # exception expected
+        assert 1 == 2  # exception expected above
     except:
         pass
 
@@ -105,9 +110,19 @@ def test_getInitialWindowSizeInvalid():
     assert (850 == result[0])
     assert (500 == result[1])
 
+def test_solve_config_location():
+    if os.path.exists(CUR_DIR + "/config=test/config.json.bkp"):
+        os.remove(CUR_DIR + "/config=test/config.json.bkp")
+    shutil.copyfile(CUR_DIR + "/config-test/config.json.base", CUR_DIR + "/config-test/config.json")
+
+    config = _tested.load()
+
+    assert not os.path.exists(CUR_DIR + "/config-test/config.json")
+    assert config.browserAlwaysOnTop    # according to base file
+
 # if __name__ == '__main__':
 #     if '-view' in sys.argv:
-#         main = QtWidgets.QMainWindow()
+#         main = QMainWindow()
 #         view = cc.ConfigController(main)
 #         view.open()
-#         sys.exit(app.exec_())
+#         sys.exit(app.exec())

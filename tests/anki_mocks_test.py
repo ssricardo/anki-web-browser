@@ -59,7 +59,7 @@ class MockWebPage:
 
         return MenuData()
 
-from PyQt5.QtWidgets import QWidget
+from aqt.qt import QWidget
 
 class MockWebEngine(QWidget):
 
