@@ -14,8 +14,8 @@ import json
 import re
 import shutil
 
-currentLocation = os.path.dirname(os.path.realpath(__file__))
-CONFIG_LOCATION = currentLocation + '/..'
+_currentLocation = os.path.dirname(os.path.realpath(__file__))
+_CONFIG_LOCATION = _currentLocation + '/..'
 CONFIG_FILE = 'config.json'
 
 # ---------------------------------- Model ------------------------------
@@ -84,13 +84,39 @@ class ConfigService:
     def getConfig(self):
         if not self._config:
             return self.load()
-        return self._config        
+        return self._config
+
+    def _configLocationV5(self):
+        return "%s/%s" % (_currentLocation, CONFIG_FILE)
+
+    def _runFixConfigLocation(self) -> ConfigHolder:
+        """Temporary change - after fixing the location of config file,
+        we want to avoid losing the users actual config (from the wrong location)"""
+
+        conf = None
+        wrongConfigLocation = self._configLocationV5()
+        if os.path.exists(wrongConfigLocation):
+            with open(wrongConfigLocation) as f:
+                obj = json.load(f)
+                conf = ConfigHolder(**obj)
+
+            try:
+                shutil.copyfile(wrongConfigLocation, wrongConfigLocation + ".bkp")
+                os.remove(wrongConfigLocation)
+                shutil.copyfile(wrongConfigLocation + ".bkp", self._configLocation())
+            except Exception as e:
+                shutil.copyfile(wrongConfigLocation + ".bkp", wrongConfigLocation)
+
+        return conf
 
     def load(self, createIfNotExists=True):
-        Feedback.log('[INFO] Trying to read web file in {}'.format(self._configLocation()))
+        Feedback.log('[INFO] Trying to read web-browser config file in {}'.format(self._configLocation()))
         try:
-            conf = self._readFileToObj()
-        except:
+            conf = self._runFixConfigLocation()
+            if not conf:
+                conf = self._readFileToObj()
+        except Exception as e:
+            print(e)
             conf = False
 
         if not conf and createIfNotExists:
@@ -106,7 +132,7 @@ class ConfigService:
 
         return conf
 
-    def __writeToFile(self, config):
+    def _writeToFile(self, config):
         """ Handles file writing... """
 
         bkpName = None  #
@@ -142,12 +168,12 @@ class ConfigService:
 
         conf.groups = [SearchGroup('Google', ['Google Web', 'Google Translate', 'Google Images'])]
 
-        self.__writeToFile(conf)
+        self._writeToFile(conf)
         self.firstTime = True
         return conf
 
     def _configLocation(self):
-        return "%s/%s" % (currentLocation, CONFIG_FILE)
+        return "%s/%s" % (_CONFIG_LOCATION, CONFIG_FILE)
 
     def save(self, config):
         """ Save a given configuration """
@@ -164,7 +190,7 @@ class ConfigService:
             return False
         
         Feedback.log('[INFO] Saving web file in {}'.format(self._configLocation()))
-        self.__writeToFile(config)
+        self._writeToFile(config)
         self._config = config
         Feedback.showInfo('Anki-Web-Browser configuration saved')
         return True
