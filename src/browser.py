@@ -5,7 +5,7 @@
 # Main GUI component for this addon
 # --------------------------------------------------------
 
-import os
+import re
 import urllib.parse
 from typing import List
 
@@ -19,21 +19,6 @@ from .core import Feedback, Style
 from .exception_handler import exceptionHandler
 from .provider_selection import ProviderSelectionController
 from .result_handler import ResultHandler
-
-BLANK_PAGE = """
-    <html>
-        <style type="text/css">
-            body {
-                margin-top: 30px;
-                background-color: #F5F5F5;
-                color: CCC;
-            }
-        </style>
-        <body>   
-            <h1>Nothing loaded...</h1>
-        </body>   
-    </html>
-"""
 
 WELCOME_PAGE = """
     <html>
@@ -80,6 +65,7 @@ class AwBrowser(QMainWindow):
     _parent = None
     _context = None
     _currentWeb = None
+    _rePageProtocol = re.compile("^((http|ftp)s?|file)://")
 
     providerList = []
 
@@ -163,6 +149,7 @@ class AwBrowser(QMainWindow):
         self._itAddress.setObjectName("itSite")
         self._itAddress.setStyleSheet("background-color: #F5F5F5;")
         self._itAddress.returnPressed.connect(self._goToAddress)
+        self._itAddress.textEdited.connect(self._onAddressFocus)
         navtbar.addWidget(self._itAddress)
 
         cbGo = QAction(
@@ -194,13 +181,17 @@ class AwBrowser(QMainWindow):
 
         mainLayout.addWidget(self._tabs)
         # -------------------- Bottom bar ----------------------
+        bottomSplitter = QSplitter(Qt.Horizontal)
+        bottomSplitter.setStyleSheet("background-color: #F3F3F3")
+        bottomSplitter.setFixedHeight(1)
+        mainLayout.addWidget(bottomSplitter)
 
         bottomWidget = QWidget(self)
         bottomWidget.setFixedHeight(30)
 
         bottomLayout = QHBoxLayout(bottomWidget)
         bottomLayout.setObjectName("bottomLayout")
-        bottomWidget.setStyleSheet("color: #FFF;")
+        bottomWidget.setStyleSheet("color: #FFF")
 
         lbSite = QLabel(bottomWidget)
         lbSite.setObjectName("label")
@@ -250,12 +241,10 @@ class AwBrowser(QMainWindow):
     # ======================================== Tabs =======================================
 
     def add_new_tab(self, qurl=None, label="Blank"):
-
-        if qurl is None:
-            qurl = QUrl("")
-
         browser = AwWebEngine(self)
-        browser.setUrl(qurl)
+        browser.preLoadPage()
+        if qurl:
+            browser.setUrl(qurl)
         browser.contextMenuEvent = self._menuDelegator.contextMenuEvent
         browser.page().settings().setAttribute(
             QWebEngineSettings.WebAttribute.LocalStorageEnabled, True
@@ -299,12 +288,22 @@ class AwBrowser(QMainWindow):
         self._tabs.widget(i).deleteLater()
         self._tabs.removeTab(i)
 
-    def update_urlbar(self, q, browser=None):
+    def update_urlbar(self, qUrl, browser=None):
         if browser != self._tabs.currentWidget():
             return
 
-        self._itAddress.setText(q.toString())
+        resolved = self._rePageProtocol.match(qUrl.toString())
+
+        if resolved:
+            self._itAddress.setText(qUrl.toString())
+        else:
+            self._itAddress.setText("")
+            self._itAddress.setPlaceholderText("https://about:blank/{}")
         self._itAddress.setCursorPosition(0)
+
+    def _onAddressFocus(self):
+        if not self._itAddress.text():
+            self._itAddress.setText("https://")
 
     def updateTabTitle(self, index: int, browser: QWebEngineView):
         def fn():
