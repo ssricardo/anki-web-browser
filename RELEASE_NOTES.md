@@ -1,5 +1,11 @@
 # Notes
 
+**7.0** | 17/01/22
+
+* Support base64 images (like in Google Images)
+* Add image processing (reducing)
+* Improve config view
+
 **6.0** | 06/01/22
 
 * Support Anki 2.50 / PyQt 6 (from @RisingOrange)
