@@ -9,8 +9,9 @@ from .config.main import service as cfg
 from .core import Feedback
 from .exception_handler import exceptionHandler
 from .browser import AwBrowser
-from .no_selection import NoSelectionController
+from .no_selection import NoSelectionController, NoSelectionResult
 from .provider_selection import ProviderSelectionController
+
 
 class BaseController:
     """ Concentrates common operations between both concrete controllers """
@@ -78,4 +79,7 @@ class BaseController:
         raise Exception('Must be overriden')
 
     def getCurrentSearch(self) -> List[str]:
+        raise Exception('Must be overriden')
+
+    def handleNoSelectionResult(self, resultValue: NoSelectionResult):
         raise Exception('Must be overriden')

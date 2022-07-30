@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Main interface between Anki and this addon components
+# Interface between Anki Review and this addon
 
 # This files is part of anki-web-browser addon
 # @author ricardo saturnino
@@ -7,54 +7,16 @@
 from typing import List
 
 from anki.hooks import addHook
-from aqt import mw
 from aqt.qt import QAction
 from aqt.reviewer import Reviewer
-from aqt.utils import openLink, showWarning, tooltip
 
 from .base_controller import BaseController
 from .browser import AwBrowser
 from .config.main import service as cfg
 from .core import Feedback
-from .editor_controller import EditorController
 from .exception_handler import exceptionHandler
 from .no_selection import NoSelectionResult
 
-# Holds references so GC doesnt kill them
-controllerInstance = None
-editorCtrl = None
-
-
-@staticmethod
-def _ankiShowInfo(*args):
-    tooltip(args, 3500)
-
-
-@staticmethod
-def _ankiShowError(*args):
-    showWarning(str(args))
-
-
-def run():
-    global controllerInstance, editorCtrl
-
-    Feedback.log('Setting anki-web-browser controller')
-    Feedback.showInfo = _ankiShowInfo
-    Feedback.showError = _ankiShowError
-    Feedback.showWarn = lambda args: tooltip('<b>Warning</b><br />' + args, 7500)
-    BaseController.openExternalLink = openLink
-
-    cfg.getConfig()  # Load web
-    controllerInstance = ReviewController(mw)
-    controllerInstance.setupBindings()
-
-    editorCtrl = EditorController(mw)
-
-    if cfg.firstTime:
-        controllerInstance.browser.welcome()
-
-
-# ----------------------------------------------------------------------------------
 
 class ReviewController(BaseController):
     """

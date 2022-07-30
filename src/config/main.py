@@ -27,7 +27,7 @@ class ConfigHolder:
     RP_SHORT = 'F10'
     INITIAL_SIZE = '850x500'
 
-    def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop=False, menuShortcut=SHORTCUT, \
+    def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop=False, menuShortcut=SHORTCUT,
                  providers=[], initialBrowserSize=INITIAL_SIZE, enableDarkReader=False,
                  repeatShortcut=RP_SHORT, useSystemBrowser=False, groups=[], filteredWords=[], **kargs):
         self.providers = [Provider(**p) for p in providers]
@@ -89,32 +89,10 @@ class ConfigService:
     def _configLocationV5(self):
         return "%s/%s" % (_currentLocation, CONFIG_FILE)
 
-    def _runFixConfigLocation(self) -> ConfigHolder:
-        """Temporary change - after fixing the location of config file,
-        we want to avoid losing the users actual config (from the wrong location)"""
-
-        conf = None
-        wrongConfigLocation = self._configLocationV5()
-        if os.path.exists(wrongConfigLocation):
-            with open(wrongConfigLocation) as f:
-                obj = json.load(f)
-                conf = ConfigHolder(**obj)
-
-            try:
-                shutil.copyfile(wrongConfigLocation, wrongConfigLocation + ".bkp")
-                os.remove(wrongConfigLocation)
-                shutil.copyfile(wrongConfigLocation + ".bkp", self._configLocation())
-            except Exception as e:
-                shutil.copyfile(wrongConfigLocation + ".bkp", wrongConfigLocation)
-
-        return conf
-
     def load(self, createIfNotExists=True):
-        Feedback.log('[INFO] Trying to read web-browser config file in {}'.format(self._configLocation()))
+        Feedback.log('[INFO] Trying to read web-browser config')
         try:
-            conf = self._runFixConfigLocation()
-            if not conf:
-                conf = self._readFileToObj()
+            conf = self._readConfigAsObj()
         except Exception as e:
             print(e)
             conf = False
@@ -124,30 +102,12 @@ class ConfigService:
         self._config = conf
         return conf
 
-    def _readFileToObj(self) -> ConfigHolder:
-        with open(self._configLocation()) as f:
-            obj = json.load(f)
-            Feedback.log(obj)
-            conf = ConfigHolder(**obj)
+    def _readConfigAsObj(self) -> ConfigHolder:
+        raise Exception("Must be overridden")
 
-        return conf
-
-    def _writeToFile(self, config):
+    def _writeConfig(self, config):
         """ Handles file writing... """
-
-        bkpName = None  #
-        try:
-            if os.path.exists(self._configLocation()):
-                bkpName = shutil.copyfile(self._configLocation(), self._configLocation() + '.bkp')
-            with(open(self._configLocation(), 'w')) as cfgFile:
-                json.dump(config.toDict(), cfgFile)
-        except Exception as e:
-            if bkpName:
-                shutil.copyfile(bkpName, self._configLocation())  # restore
-            Feedback.showError(e)
-        finally:
-            if bkpName:
-                os.remove(bkpName)
+        raise Exception("Must be overridden")
 
     def _createConfiguration(self):
         """
@@ -155,7 +115,7 @@ class ConfigService:
             A simple JSON from a dictionary. Should be called only if the file doesn't exist yet
         """
 
-        Feedback.log('[INFO] Creating a new web file in {}'.format(self._configLocation()))
+        Feedback.log('[INFO] Creating a new web-browser config')
 
         conf = ConfigHolder()
 
@@ -168,7 +128,7 @@ class ConfigService:
 
         conf.groups = [SearchGroup('Google', ['Google Web', 'Google Translate', 'Google Images'])]
 
-        self._writeToFile(conf)
+        self._writeConfig(conf)
         self.firstTime = True
         return conf
 
@@ -189,8 +149,8 @@ class ConfigService:
             Feedback.showInfo(ve)
             return False
         
-        Feedback.log('[INFO] Saving web file in {}'.format(self._configLocation()))
-        self._writeToFile(config)
+        Feedback.log('[INFO] Storing web-browser')
+        self._writeConfig(config)
         self._config = config
         Feedback.showInfo('Anki-Web-Browser configuration saved')
         return True

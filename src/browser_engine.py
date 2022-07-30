@@ -69,13 +69,16 @@ class AwWebEngine(QWebEngineView):
         # style.appendChild(document.createTextNode(loadingCss));
         # """)
 
+        if AwWebEngine.DARK_READER:
+            self.page().runJavaScript(AwWebEngine.DARK_READER)
+
     def onLoadFinish(self, result):
         self.isLoading = False
         if not result:
             Feedback.log("No result on loading page! ")
 
         if AwWebEngine.DARK_READER:
-            self.page().runJavaScript(AwWebEngine.DARK_READER)
+            # self.page().runJavaScript(AwWebEngine.DARK_READER)
             # self.page().runJavaScript("document.getElementById('loadingBack').disabled = 'disabled';")
             self.page().runJavaScript("DarkReader.setFetchMethod(window.fetch);")
 
