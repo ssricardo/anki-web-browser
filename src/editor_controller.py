@@ -8,19 +8,22 @@
 # ---------------------------------- Editor Control -----------------------------------
 # ---------------------------------- ================ ---------------------------------
 
-import json
+import os
 from typing import List
 
 from anki.hooks import addHook
 from aqt.editor import Editor
+from aqt import mw
 from aqt.qt import *
 
 from .base_controller import BaseController
 from .config.main import service as cfg
 from .core import Feedback
 from .no_selection import NoSelectionResult
+from .result_handler import ResultHandler
 
 
+# noinspection PyPep8Naming
 class EditorController(BaseController):
     _editorReference = None
     _curSearch: List[str] = None
@@ -39,6 +42,13 @@ class EditorController(BaseController):
         addHook("EditorWebView.contextMenuEvent", self.onEditorHandle)
         addHook("setupEditorShortcuts", self.setupShortcuts)
         addHook("loadNote", self.newLoadNote)
+
+        ResultHandler.create_image_from_url = lambda url: self._editorReference.urlToLink(url)
+        ResultHandler.get_media_location = lambda: os.path.join(mw.pm.profileFolder(), "collection.media")
+
+# Not
+# a
+# directory: '/home/ricardo/.local/share/Anki2/Ricardo/collection.anki2/21-12-14-22-45-44175.png'
 
     def newLoadNote(self, editor: Editor):
         """Listens when the current showed card is changed.
@@ -151,7 +161,7 @@ class EditorController(BaseController):
 
     # ---------------------------------- --------------- ---------------------------------
     def beforeOpenBrowser(self):
-        self.browser.setSelectionHandler(self.handleSelection)
+        self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
         note = self._currentNote
         fieldList = note.model()["flds"]
         fieldsNames = {
@@ -161,54 +171,3 @@ class EditorController(BaseController):
             ["No action available", "Required: Text selected or link to image"]
         )
         self.browser.setFields(fieldsNames)
-
-    def handleSelection(self, fieldIndex, value, isUrl=False):
-        """
-        Callback from the web browser.
-        Invoked when there is a selection coming from the browser. It needs to be delivered to a given field
-        """
-
-        if self._editorReference and self._currentNote != self._editorReference.note:
-            Feedback.showWarn(
-                """Inconsistent state found. 
-            The current note is not the same as the Web Browser reference. 
-            Try closing and re-opening the browser"""
-            )
-            return
-
-        self._editorReference.currentField = fieldIndex
-
-        if isUrl:
-            self.handleUrlSelection(fieldIndex, value)
-        else:
-            self.handleTextSelection(fieldIndex, value)
-
-    def handleUrlSelection(self, fieldIndex, value):
-        """
-        Imports an image from the link 'value' to the collection.
-        Adds this new img tag to the given field in the current note"""
-
-        url = value.toString() if value else ""
-        Feedback.log("Selected from browser: {} || ".format(url))
-
-        imgReference = self._editorReference.urlToLink(url)
-
-        if (not imgReference) or not imgReference.startswith("<img"):
-            Feedback.showWarn(
-                "URL invalid! Only URLs with references to image files are supported (ex: http://images.com/any.jpg,  any.png)"
-            )
-            return
-
-        Feedback.log("handleUrlSelection.imgReference: " + imgReference)
-
-        self._editorReference.web.eval("focusField(%d);" % fieldIndex)
-        self._editorReference.web.eval(
-            "setFormat('inserthtml', %s);" % json.dumps(imgReference)
-        )
-
-    def handleTextSelection(self, fieldIndex, value):
-        """Adds the selected value to the given field of the current note"""
-
-        newValue = self._currentNote.fields[fieldIndex] + "\n " + value
-        self._currentNote.fields[fieldIndex] = newValue
-        self._editorReference.setNote(self._currentNote)

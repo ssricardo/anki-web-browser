@@ -7,12 +7,15 @@
 # @author ricardo saturnino
 # -------------------------------------------------------------
 
-__version__ = "6.0"
+__version__ = "7.0"
 
 import sys
 import os
+from .config import main
 
 CWD = os.path.dirname(os.path.realpath(__file__))
+
+main.addon_home = lambda: CWD
 
 
 def logToConsole(*args, **kargs):

@@ -14,6 +14,21 @@ from .core import Feedback
 if qtmajor <= 5:
     from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 
+LOAD_PAGE = """
+    <html>
+        <style type="text/css">
+            body {
+                margin-top: 30px;
+                background-color: transparent;
+                color: #F5F5F5;
+            }
+        </style>
+        <body>   
+            <h3>New Page...</h3>
+        </body>   
+    </html>
+"""
+
 
 # noinspection PyPep8Naming
 class AwWebEngine(QWebEngineView):
@@ -45,32 +60,21 @@ class AwWebEngine(QWebEngineView):
         self.settings().setAttribute(
             QWebEngineSettings.WebAttribute.AllowRunningInsecureContent, True
         )
+        self.page().setBackgroundColor(Qt.transparent)
 
         self.page().loadStarted.connect(self.onStartLoading)
         self.page().loadFinished.connect(self.onLoadFinish)
 
         return self
 
+    def preLoadPage(self):
+        print("Preload")
+        self.setHtml(LOAD_PAGE, QUrl("about:blank"))
+
     # ======   Listeners ======
 
     def onStartLoading(self):
         self.isLoading = True
-
-        # self.page().runJavaScript("""
-        # var loadingCss = 'body { background: red; }',
-        #     head = document.head || document.getElementsByTagName('head')[0],
-        #     style = document.createElement('style');
-        #
-        #
-        # head.appendChild(style);
-        #
-        # style.type = 'text/css';
-        # style.id = 'loadingBack';
-        # style.appendChild(document.createTextNode(loadingCss));
-        # """)
-
-        if AwWebEngine.DARK_READER:
-            self.page().runJavaScript(AwWebEngine.DARK_READER)
 
     def onLoadFinish(self, result):
         self.isLoading = False

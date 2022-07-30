@@ -1,5 +1,19 @@
 <!DOCTYPE html>
 <style type="text/css">
+
+    .prov_form label {
+        text-align: left;
+        padding-left: 0.7em;
+    }
+
+    .prov_form fieldset {
+        padding-left: 4.5em;
+        margin-top: 1.5em;
+    }
+
+    .prov_form button img {
+        vertical-align: middle;
+    }    
 </style>
 
 <script type="text/javascript">
@@ -55,11 +69,8 @@
     }
 
     function addNewGroup() {
-        // debugger
         $('#iSelected').val(-1)
         $('#itGrName').val("")
-
-        // TODO: corrige field cleaning
 
         $('input:checkbox[name=grProvider]').each((_, item) => {
             $(item).prop('checked', false)
@@ -93,7 +104,6 @@
         
         let grProviders = []
         $("input:checkbox[name=grProvider]:checked").each((_, item) => {
-            // if ($(item).is(":checked"))
             grProviders.push($(item).attr("data-provider"));
         });
         item.providerList = grProviders
@@ -139,14 +149,14 @@
     </div>
 
     <!-- === Form === -->
-    <div id="pForm" class="item_form">
+    <div id="pForm" class="item_form prov_form">
         <input id="iSelected" type="hidden" value="-1" />
         <div>
-            <label>Name: </label>
+            <label class="lb_main">Name: </label>
             <input id="itGrName" type="text" maxlength="50" />
         </div>
         <div>
-            <label>Providers: </label>
+            <label class="lb_main">Providers: </label>
             <fieldset id="ctProviders">
             </fieldset>
         </div>

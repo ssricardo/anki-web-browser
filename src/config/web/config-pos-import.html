@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<style type="text/css">
+    #warn-system-browser {
+        size: small;
+        color: red;
+        margin-right: 30px;
+        visibility: hidden;
+    }
+
+    #mainConfg {
+        border-bottom: 1px solid;
+    }
+
+    #secMisc div > label {
+        width: 35%;
+        display: inline-block;
+        text-align: right;
+    }
+</style>
+
+<section id="secMisc">
+    <div id="mainConfg">
+        <h2>Pos Processing</h2>
+
+        <h4>Image Reducing</h4>
+        <blockquote>
+            Images are reduced maintaining the ratio, if values are specified below
+        </blockquote>
+        <div>
+            <label class="lb_main">Max Width: </label>
+            <input id="itImgMaxWidth" type="number" min="10" max="10000" />
+        </div>
+        <div>
+            <label class="lb_main">Max Height: </label>
+            <input id="itImgMaxHeight" type="number" min="10" max="10000" />
+        </div>
+    </div>
+
+    <script type="text/javascript">        
+
+        function loadPosProcess() {
+            if (!curConfig || !curConfig.initialBrowserSize || !curConfig.filteredWords) {
+                return;
+            }
+
+            $('#itImgMaxWidth').val(curConfig.imgMaxWidth)
+            $('#itImgMaxHeight').val(curConfig.imgMaxHeight)        
+
+            onUsedBrowserChange()
+        }
+
+        function savePosProcess() {
+            curConfig.imgMaxWidth = parseInt($('#itImgMaxWidth').val().trim())
+            curConfig.imgMaxHeight = parseInt($('#itImgMaxHeight').val().trim())
+        }
+    </script>
+</section>

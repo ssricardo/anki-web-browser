@@ -3,30 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>AWB Config</title>
-    <meta name="viewport" content="width=device-width; initial-scale=1; 
-          maximum-scale=1; user-scalable=no;target-densitydpi=72;" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.50,user-scalable=no" />
 
     <script src="./jquery.min.js"></script>
 
     <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
     <script type="text/javascript" src="./config-script.js"></script>
-    <!--<script type="text/javascript" src="./config-test-data.js"></script>-->
+    <!-- <script type="text/javascript" src="./config-test-data.js"></script> -->
     <link rel="stylesheet" href="./config-styles.css" />
 </head>
 <body>
     <div id="content">
 
     </div>
-    <div id="mainActions" class="nav">
-        <button id="btPrev" onclick="previous()">
-            <img src="../../assets/arrow-back.png" width="24" />
-            <span id="lkPrevious"></span>
-        </button>
-        <button id="btNext" onclick="next()">
-            <span id="lkNext"></span>
-            <img src="../../assets/arrow-forward.png" width="24" />
-        </button>
-    </div>
+    <nav id="mainActions" class="nav">
+    </nav>
 
     <script type="text/javascript">
         init();

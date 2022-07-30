@@ -9,7 +9,7 @@ class TestNote:
         _tag = None
         fields = [{
             'form': {}
-        }]
+        }, "Field2"]
 
     #     def hasTag(self, str):
     #         return str == self._tag
@@ -25,6 +25,9 @@ class TestEditor():
     note = TestNote()
     currentField = None
 
+    def setNote(self, *args):
+        print('Mock setNote')
+
 # See http://doc.qt.io/qt-5/qwebenginepage.html
 class TestWebView:
     editor = TestEditor()
@@ -33,6 +36,11 @@ class TestWebView:
     def selectedText(self): pass
     def selectionChanged(self): pass
     def hasSelection(self): return True
+    def eval(self, value): print("eval(): %s" % value)
+
+
+TestEditor.web = TestWebView()
+
 
 class TMenu:
     pass

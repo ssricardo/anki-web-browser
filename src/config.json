@@ -3,7 +3,7 @@
     "browserAlwaysOnTop": false,
     "useSystemBrowser": false, 
     "menuShortcut": "Ctrl+Shift+B",
-    "initialBrowserSize": "800x550",
+    "initialBrowserSize": "950x750",
     "repeatShortcut": "F10", 
     "providers": [
         {
@@ -29,6 +29,10 @@
         {
             "name": "SeekPng",
             "url": "https://www.seekpng.com/search.html?color=&sizetype=s&type=&k={}"
+        },
+        {
+            "name": "DwDs",
+            "url": "https://dwds.de/wb/{}"
         },
         {
             "name": "Dict.cc",
@@ -58,6 +62,7 @@
             "Dict.cc",
             "Leo Dict",
             "Pons DE",
+            "DwDs",
             "Forvo"
           ]
         }

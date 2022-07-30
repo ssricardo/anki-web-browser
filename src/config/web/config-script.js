@@ -8,7 +8,7 @@ var pages = [
         "storeFn": () => saveMain(),
     },
     {
-        "label": "Providers",
+        "label": "Search Providers",
         "page": "./config-providers.html",
         "loadFn": () => loadProviders(),
         "storeFn": () => saveProviders(),
@@ -18,6 +18,12 @@ var pages = [
         "page": "./config-groups.html",
         "loadFn": () => initGroupsPage(),
         "storeFn": () => saveGroups(),
+    },
+    {
+        "label": "Pos Processing",
+        "page": "./config-pos-import.html",
+        "loadFn": () => loadPosProcess(),
+        "storeFn": () => savePosProcess(),
     }
 ]
 
@@ -41,15 +47,15 @@ function load(index) {
 
             if (index > 0) {
                 $('#lkPrevious').text(`(${pages[index - 1].label})`)
-                $('#btPrev').removeClass('disabled')
+                $('#btPrev').removeClass('disabled2')
             } else {
-                $('#btPrev').addClass('disabled')
+                $('#btPrev').addClass('disabled2')
             }
             if (index < pages.length - 1) {
                 $('#lkNext').text(`(${pages[index + 1].label})`)
-                $('#btNext').removeClass('disabled')
+                $('#btNext').removeClass('disabled2')
             } else {
-                $('#btNext').addClass('disabled')
+                $('#btNext').addClass('disabled2')
             }
         })        
     }
@@ -57,25 +63,23 @@ function load(index) {
 }
 
 function init() {
+    $("#mainActions").empty()
+    for (i = 0; i < pages.length; i++) {
+        $("#mainActions").append(createLinkForPage(pages[i], i))
+    }
     load(0)
+}
+
+function createLinkForPage(pg, index) {
+    return $(`<button id='lk${index}' onclick='load(${index})'>`)
+        .append('<img src="../../assets/ext-link.png" />')
+        .append(`<span> ${pg.label}</span>`)
 }
 
 function loadConfig(value) {
     curConfig = value;
     init()
     return "Done"
-}
-
-function next() {
-    if (currentPage < pages.length - 1) {
-        load(currentPage + 1)
-    }
-}
-
-function previous() {
-    if (currentPage > 0) {
-        load(currentPage - 1)
-    } 
 }
 
 function save() {

@@ -15,26 +15,27 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../")
 sys.argv.append("-awb-test")
 
 
+import json
 app = QApplication(sys.argv)
 
 from src.config import config_view as cc
 from src.config.main import ConfigHolder, Provider, SearchGroup
 
-main = QMainWindow()
-view = cc.ConfigView(None)
-view.save = lambda cfg: print(vars(cfg))
-config = ConfigHolder(
+if __name__ == '__main__':
+    main = QMainWindow()
+    view = cc.ConfigView(None)
+    view.save = lambda cfg: print(vars(cfg))
+    config = ConfigHolder(
     providers=[
         Provider("Insta", "https://instagram.com/{}").__dict__,
         Provider("LinkedIn", "https://linkedin.com/{}").__dict__,
     ],
     groups=[SearchGroup("Others", ["Insta", "LinkedIn"]).__dict__],
 )
-config.enableDarkReader = True
+    config.enableDarkReader = True
 
-import json
 
-print(json.dumps(config, default=lambda o: o.__dict__, indent=2))
+    print(json.dumps(config, default=lambda o: o.__dict__, indent=2))
 
-view.open(config)
-sys.exit(app.exec())
+    view.open(config)
+    sys.exit(app.exec())
