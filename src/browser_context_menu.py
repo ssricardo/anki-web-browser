@@ -7,8 +7,10 @@ from .core import Feedback, Label
 
 if qtmajor == 5:
     MediaTypeImage = QWebEngineContextMenuData.MediaType.MediaTypeImage
+    Feedback.log("Using Qt5")
 elif qtmajor == 6:
     MediaTypeImage = QWebEngineContextMenuRequest.MediaType.MediaTypeImage
+    Feedback.log("Using Qt6")
 else:
     raise RuntimeError("unkown qt version")
 
@@ -77,16 +79,12 @@ class AwBrowserMenu:
                 value = self._contextMenuRequest().mediaUrl()
                 Feedback.log("Link: " + value.toString())
                 Feedback.log("toLocal: " + value.toLocalFile())
-            # FIXME merge
-            if (self._web.page().contextMenuData().mediaType() == QWebEngineContextMenuData.MediaTypeImage
-                    and self._web.page().contextMenuData().mediaUrl()):
+            if (self._contextMenuRequest().mediaType() == MediaTypeImage
+                    and self._contextMenuRequest().mediaUrl()):
                 isImageLink = True
-                value = self._web.page().contextMenuData().mediaUrl()
+                value = self._contextMenuRequest().mediaUrl()
                 Feedback.log('Link: ' + value.toString())
                 Feedback.log('toLocal: ' + value.toLocalFile())
-
-                if not self._checkSuffix(value):
-                    return
 
         if not value:
             Feedback.log("No value")
@@ -105,22 +103,6 @@ class AwBrowserMenu:
             return self._web.lastContextMenuRequest()
         else:
             raise RuntimeError("unkown qt version")
-
-    def _checkSuffix(self, value):
-        # if value and not value.toString().endswith(("jpg", "jpeg", "png", "gif")):
-        #     msgLink = value.toString()
-        #     if len(value.toString()) > 100:
-        #         msgLink = msgLink[:60] + '...' + msgLink[30::-1]
-        #     answ = QMessageBox.question(self._web, 'Anki support',
-        #                                 """This link may not be accepted by Anki: \n\n "%s" \n
-        #                 Usually the suffix should be one of
-        #                 (jpg, jpeg, png, gif).
-        #                 Try it anyway? """ % msgLink, QMessageBox.Yes | QMessageBox.No)
-        #
-        #     if answ != QMessageBox.Yes:
-        #         return False
-
-        return True
 
     def createCtxMenu(self, value, isImageLink: bool, evt):
         """Creates and configures the menu itself"""
