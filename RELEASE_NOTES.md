@@ -1,10 +1,11 @@
 # Notes
 
-**7.0** | 17/01/22
+**7.0** | 02/08/22
 
 * Support base64 images (like in Google Images)
 * Add image processing (reducing)
 * Improve config view
+* Change config to avoid losing configs between updates
 
 **6.0** | 06/01/22
 
