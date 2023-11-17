@@ -13,6 +13,8 @@ from .core import Feedback
 
 if qtmajor <= 5:
     from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+else:
+    from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 
 LOAD_PAGE = """
     <html>
@@ -21,7 +23,7 @@ LOAD_PAGE = """
                 margin-top: 30px;
                 background-color: transparent;
                 color: #F5F5F5;
-            }
+            }            
         </style>
         <body>   
             <h3>New Page...</h3>
@@ -60,7 +62,6 @@ class AwWebEngine(QWebEngineView):
         self.settings().setAttribute(
             QWebEngineSettings.WebAttribute.AllowRunningInsecureContent, True
         )
-        self.page().setBackgroundColor(Qt.transparent)
 
         self.page().loadStarted.connect(self.onStartLoading)
         self.page().loadFinished.connect(self.onLoadFinish)

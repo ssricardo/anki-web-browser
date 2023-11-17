@@ -1,5 +1,11 @@
 # Notes
 
+**7.2** | 17/Nov/23
+
+* Fix issues with PyQt6 and new version of Anki
+* Minor changes in blank page
+
+
 **7.0** | 02/08/22
 
 * Support base64 images (like in Google Images)

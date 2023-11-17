@@ -4,8 +4,8 @@
 # Decorates View, making changes without affect generated file.
 # ---------------------------------------
 
-from aqt import qtmajor
 from aqt.qt import *
+from aqt import qtmajor
 
 from .core import Feedback
 
@@ -14,7 +14,7 @@ if qtmajor == 5:
 elif qtmajor == 6:
     from .no_selection_view_qt6 import Ui_Dialog
 else:
-    raise RuntimeError("unkown qt version")
+    raise RuntimeError("unkkown qt version")
 
 
 class NoSelectionResult:

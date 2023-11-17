@@ -10,8 +10,16 @@ import json
 import base64
 from datetime import datetime
 from random import randint
-from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QImage
+
+from aqt import qtmajor
+
+if qtmajor <= 5:
+    from PyQt5.QtCore import QUrl
+    from PyQt5.QtGui import QImage
+else:
+    from PyQt6.QtCore import QUrl
+    from PyQt6.QtGui import QImage
+
 
 from .core import Feedback
 from .config.main import service as cfgService

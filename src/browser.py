@@ -52,6 +52,42 @@ WELCOME_PAGE = """
     </html>
 """
 
+BLANK_PAGE = """
+    <html>
+        <style type="text/css">
+            body {
+                margin-top: 30px;
+                background-color: #154c79;
+                color: #F5F5F5;
+            }            
+            a {
+                color: #F0F0F0;
+            }
+            p {
+                margin-bottom: 20px;
+            }
+        </style>
+        <body>   
+            <h1>Anki Web Browser</h1>
+            <hr />
+
+            <div>
+                No page is loaded
+            </div>
+            <p>
+                I'm waiting for the next command ;)
+            </p>
+            <div>
+                If you need instructions, check out the add-on <a href="https://github.com/ssricardo/anki-web-browser">documentation</a>
+            </div>
+        </body>   
+    </html>
+"""
+
+if qtmajor > 5:
+    Qt.Horizontal = Qt.Orientation.Horizontal
+    from PyQt6 import QtCore
+
 
 # noinspection PyPep8Naming
 class AwBrowser(QMainWindow):
@@ -214,7 +250,11 @@ class AwBrowser(QMainWindow):
         mainLayout.addWidget(bottomWidget)
 
         if cfg.getConfig().browserAlwaysOnTop:
-            self.setWindowFlags(Qt.WindowType.WindowType.WindowStaysOnTopHint)
+            if qtmajor > 5:
+                self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+            else:
+                self.setWindowFlags(Qt.WindowType.WindowType.WindowStaysOnTopHint)
+
         if cfg.getConfig().enableDarkReader:
             AwWebEngine.enableDarkReader()
 
@@ -280,6 +320,7 @@ class AwBrowser(QMainWindow):
         if self._tabs.count() < 2:
             if self._currentWeb:
                 self._currentWeb.setUrl(QUrl("about:blank"))
+                self._currentWeb.setHtml(BLANK_PAGE)
             return
 
         if self._tabs.currentIndex() == i:
@@ -299,6 +340,7 @@ class AwBrowser(QMainWindow):
         else:
             self._itAddress.setText("")
             self._itAddress.setPlaceholderText("https://about:blank/{}")
+
         self._itAddress.setCursorPosition(0)
 
     def _onAddressFocus(self):
@@ -376,6 +418,7 @@ class AwBrowser(QMainWindow):
     def onClose(self):
         if self._currentWeb:
             self._currentWeb.setUrl(QUrl("about:blank"))
+            self._currentWeb.setHtml(BLANK_PAGE)
             self._currentWeb = None
         for c in self._tabs.children():
             c.close()

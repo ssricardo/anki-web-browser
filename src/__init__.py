@@ -7,7 +7,7 @@
 # @author ricardo saturnino
 # -------------------------------------------------------------
 
-__version__ = "7.0"
+__version__ = "7.1"
 
 import sys
 import os
