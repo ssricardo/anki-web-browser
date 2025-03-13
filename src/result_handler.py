@@ -55,11 +55,11 @@ class ResultHandler:
             Invoked when there is a selection coming from the browser. It needs to be delivered to a given field
         """
 
+        # When dealing with consecutive card additions, the browser's ResultHandler might have
+        # an outdated reference to the note. Update it if needed.
         if self._editorReference and self._currentNote != self._editorReference.note:
-            Feedback.showWarn("""Inconsistent state found. 
-            The current note is not the same as the Web Browser reference. 
-            Try closing and re-opening the browser""")
-            return
+            Feedback.log("Updating note reference for consecutive card addition")
+            self._currentNote = self._editorReference.note
 
         self._editorReference.currentField = field_index
 

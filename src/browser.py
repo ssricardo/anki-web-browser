@@ -403,14 +403,21 @@ class AwBrowser(QMainWindow):
         elif self._currentWeb:
             self._currentWeb.setUrl(QUrl(address))
 
-    def clearContext(self):
+    def clearContext(self, maintainTabs=False):
+        """
+        Clear the browser context.
+        If maintainTabs is True, keeps the tabs but clears the context reference.
+        This is useful during consecutive card additions in the editor.
+        """
         if not self._context:
             return
-        numTabs = self._tabs.count()
-        if numTabs == 0:
-            return
-        for tb in range(numTabs, 0, -1):
-            self.close_current_tab(tb - 1)
+            
+        if not maintainTabs:
+            numTabs = self._tabs.count()
+            if numTabs == 0:
+                return
+            for tb in range(numTabs, 0, -1):
+                self.close_current_tab(tb - 1)
 
         self._context = None
         self._updateContextWidget()

@@ -27,7 +27,6 @@ from .result_handler import ResultHandler
 class EditorController(BaseController):
     _editorReference = None
     _curSearch: List[str] = None
-    _previousNoteWasEmpty = False  # Track if the previous note was a new/empty note
 
     def __init__(self, ankiMw):
         super(EditorController, self).__init__(ankiMw)
@@ -61,29 +60,46 @@ class EditorController(BaseController):
         if not self.browser:
             return
 
-        # Check if we're transitioning between a saved note and a new one
-        # In add mode, after adding a card, Anki loads a new empty note
-        is_empty_note = editor.note and len(editor.note.fields) > 0 and all(not f.strip() for f in editor.note.fields)
-        is_adding_cards = is_empty_note or (self._previousNoteWasEmpty and editor.note)
-        
-        self._previousNoteWasEmpty = is_empty_note
-
-        # If we're not in the card adding flow, or if we should keep the browser open regardless
+        # Note hasn't changed - nothing to do
         if self._currentNote == self._editorReference.note:
             return
 
-        # Update the current note reference
+        # Store the previous note before updating
+        prevNote = self._currentNote
         self._currentNote = self._editorReference.note
+
+        # Handle browser context during consecutive card additions
+        if cfg.getConfig().keepBrowserOpened:
+            # Only update the result handler with the new note if browser exists
+            if self.browser:
+                # Check if browser has an active context
+                hasContext = (hasattr(self.browser, "_context") and 
+                              self.browser._context and 
+                              hasattr(self.browser, "_tabs") and 
+                              self.browser._tabs.count() > 0)
+                
+                if hasContext:
+                    # Update the result handler without clearing context or closing browser
+                    Feedback.log("Updating browser context for consecutive card addition")
+                    self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
+                    
+                    # Ensure fields list is updated for the new note
+                    if hasattr(self.browser, "setFields") and self._currentNote:
+                        note = self._currentNote
+                        fieldList = note.model()["flds"]
+                        fieldsNames = {
+                            ind: val for ind, val in enumerate(map(lambda i: i["name"], fieldList))
+                        }
+                        self.browser.setFields(fieldsNames)
+                    
+                    # Clear the context reference but maintain the tabs
+                    self.browser.clearContext(maintainTabs=True)
+                    return
         
-        # When adding cards in succession, preserve browser context
-        if is_adding_cards:
-            # Update result handler but don't clear context
-            if self.browser and hasattr(self, 'beforeOpenBrowser'):
-                self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
-            Feedback.log("Preserving browser context during consecutive card addition")
-        else:
-            # Normal behavior - clear context when switching between different notes
-            self.browser.clearContext()
+        # If keepBrowserOpened is false or browser doesn't have context,
+        # use the original behavior
+        if self.browser:
+            self.browser.clearContext(maintainTabs=False)
             if not cfg.getConfig().keepBrowserOpened:
                 self.browser.close()
 
@@ -180,13 +196,18 @@ class EditorController(BaseController):
 
     # ---------------------------------- --------------- ---------------------------------
     def beforeOpenBrowser(self):
+        # Update the result handler with the current editor and note
         self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
+        
+        # Set up field list for the current note
         note = self._currentNote
         fieldList = note.model()["flds"]
         fieldsNames = {
             ind: val for ind, val in enumerate(map(lambda i: i["name"], fieldList))
         }
+        self.browser.setFields(fieldsNames)
+        
+        # Set info list for the context menu
         self.browser.setInfoList(
             ["No action available", "Required: Text selected or link to image"]
         )
-        self.browser.setFields(fieldsNames)
