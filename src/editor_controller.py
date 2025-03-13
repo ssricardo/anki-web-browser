@@ -27,6 +27,7 @@ from .result_handler import ResultHandler
 class EditorController(BaseController):
     _editorReference = None
     _curSearch: List[str] = None
+    _previousNoteWasEmpty = False  # Track if the previous note was a new/empty note
 
     def __init__(self, ankiMw):
         super(EditorController, self).__init__(ankiMw)
@@ -60,13 +61,31 @@ class EditorController(BaseController):
         if not self.browser:
             return
 
+        # Check if we're transitioning between a saved note and a new one
+        # In add mode, after adding a card, Anki loads a new empty note
+        is_empty_note = editor.note and len(editor.note.fields) > 0 and all(not f.strip() for f in editor.note.fields)
+        is_adding_cards = is_empty_note or (self._previousNoteWasEmpty and editor.note)
+        
+        self._previousNoteWasEmpty = is_empty_note
+
+        # If we're not in the card adding flow, or if we should keep the browser open regardless
         if self._currentNote == self._editorReference.note:
             return
 
+        # Update the current note reference
         self._currentNote = self._editorReference.note
-        self.browser.clearContext()
-        if not cfg.getConfig().keepBrowserOpened:
-            self.browser.close()
+        
+        # When adding cards in succession, preserve browser context
+        if is_adding_cards:
+            # Update result handler but don't clear context
+            if self.browser and hasattr(self, 'beforeOpenBrowser'):
+                self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
+            Feedback.log("Preserving browser context during consecutive card addition")
+        else:
+            # Normal behavior - clear context when switching between different notes
+            self.browser.clearContext()
+            if not cfg.getConfig().keepBrowserOpened:
+                self.browser.close()
 
     def onEditorHandle(self, webView, menu):
         """
