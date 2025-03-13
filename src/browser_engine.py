@@ -43,6 +43,8 @@ class AwWebEngine(QWebEngineView):
         self.create()
         self.interceptor = WebRequestInterceptor()
         self.page().profile().setUrlRequestInterceptor(self.interceptor)
+        # Ensure DarkReader is loaded during initialization
+        AwWebEngine.enableDarkReader()
 
     @classmethod
     def enableDarkReader(clz):
@@ -83,19 +85,24 @@ class AwWebEngine(QWebEngineView):
             Feedback.log("No result on loading page! ")
 
         if AwWebEngine.DARK_READER:
-            # self.page().runJavaScript(AwWebEngine.DARK_READER)
-            # self.page().runJavaScript("document.getElementById('loadingBack').disabled = 'disabled';")
+            # First inject the DarkReader script
+            self.page().runJavaScript(AwWebEngine.DARK_READER)
+            
+            # Then set up fetch method to handle cross-origin requests
             self.page().runJavaScript("DarkReader.setFetchMethod(window.fetch);")
 
+            # Finally enable DarkReader with enhanced settings for better readability
             self.page().runJavaScript(
                 """
                     DarkReader.enable({
                         brightness: 105,
                         contrast: 90,
-                        sepia: 10
+                        sepia: 10,
+                        grayscale: 0,
+                        mode: 1  // Dark mode (0 is light mode)
                     });
     
-                    console.log('Dark reader come through');
+                    console.log('Dark reader activated');
                 """
             )
 
