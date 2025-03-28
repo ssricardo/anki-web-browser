@@ -6,7 +6,7 @@
 # ------------------------------------------------
 from typing import List
 
-from anki.hooks import addHook
+from aqt import gui_hooks
 from aqt.qt import QAction
 from aqt.reviewer import Reviewer
 
@@ -31,51 +31,21 @@ class ReviewController(BaseController):
         self.browser = AwBrowser.singleton(ankiMw.web, cfg.getInitialWindowSize())
         self.browser.setResultHandler(None)
 
-    def setupBindings(self):
-        addHook('AnkiWebView.contextMenuEvent', self.onReviewerHandle)
+    def setup_bindings(self):
+        gui_hooks.webview_will_show_context_menu.append(self.onReviewerHandle)
 
-        Reviewer.nextCard = self.wrapOnCardShift(Reviewer.nextCard)
+        gui_hooks.card_will_show.append(self.load_card)
         Reviewer._shortcutKeys = self.wrap_shortcutKeys(Reviewer._shortcutKeys)
 
         # Add web to menu
         action = QAction("Anki-Web-Browser Config", self._ankiMw)
-        action.triggered.connect(self.openConfig)
+        action.triggered.connect(self.open_config)
         self._ankiMw.form.menuTools.addAction(action)
 
-    def openConfig(self):
+    def open_config(self):
         from .config.config_ctrl import ConfigController
         cc = ConfigController(self._ankiMw)
         cc.open()
-
-    def wrapOnCardShift(self, originalFunction):
-        """
-        Listens when the current showed card is changed, in Reviewer.
-        Send msg to browser to cleanup its state"""
-
-        ref = self
-
-        def wrapped(self, focusTo=None):
-            Feedback.log('Browser - CardShift')
-
-            originalResult = None
-            if focusTo:
-                originalResult = originalFunction(self, focusTo)
-            else:
-                originalResult = originalFunction(self)
-
-            if not ref.browser or cfg.getConfig().useSystemBrowser:
-                return originalFunction
-
-            ref.browser.clearContext()
-            if not cfg.getConfig().keepBrowserOpened:
-                ref.browser.close()
-
-            if ref._ankiMw.reviewer and ref._ankiMw.reviewer.card:
-                ref._currentNote = ref._ankiMw.reviewer.card.note()
-
-            return originalResult
-
-        return wrapped
 
     def wrap_shortcutKeys(self, fn):
         ref = self
@@ -131,7 +101,7 @@ class ReviewController(BaseController):
                                                            self._currentNote.fields[noSelectionResult.value]))
                     return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
 
-        return self.prepareNoSelectionDialog(self._currentNote)
+        return self.prepareNoSelectionDialog()
 
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
         if not resultValue or \
@@ -150,6 +120,19 @@ class ReviewController(BaseController):
         return self._curSearch
 
     # ---------------------------------- Events listeners ---------------------------------
+
+    def load_card(self, text: str, card, kind: str) -> str:
+        Feedback.log('WebBrowser - CardShift')
+        if not self.browser or cfg.getConfig().useSystemBrowser:
+            return text
+
+        self.browser.clearContext()
+        if not cfg.getConfig().keepBrowserOpened:
+            self.browser.close()
+
+        self._currentNote = card.note()
+
+        return text
 
     def onReviewerHandle(self, webView, menu):
         """

@@ -56,7 +56,7 @@ def run():
 
     cfg.getConfig()  # Load web
     controllerInstance = ReviewController(mw)
-    controllerInstance.setupBindings()
+    controllerInstance.setup_bindings()
 
     editorCtrl = EditorController(mw)
 

@@ -8,10 +8,9 @@
 # ---------------------------------- Editor Control -----------------------------------
 # ---------------------------------- ================ ---------------------------------
 
-import os
 from typing import List
 
-from anki.hooks import addHook
+from aqt import gui_hooks
 from aqt.editor import Editor
 from aqt import mw
 from aqt.qt import *
@@ -39,16 +38,12 @@ class EditorController(BaseController):
     # ------------------------ Anki interface ------------------
 
     def setupBindings(self):
-        addHook("EditorWebView.contextMenuEvent", self.onEditorHandle)
-        addHook("setupEditorShortcuts", self.setupShortcuts)
-        addHook("loadNote", self.newLoadNote)
+        gui_hooks.editor_will_show_context_menu.append(self.onEditorHandle)
+        gui_hooks.editor_did_init_shortcuts.append(self.setupShortcuts)
+        gui_hooks.editor_did_load_note.append(self.newLoadNote)
 
         ResultHandler.create_image_from_url = lambda url: self._editorReference.urlToLink(url)
         ResultHandler.get_media_location = lambda: os.path.join(mw.pm.profileFolder(), "collection.media")
-
-# Not
-# a
-# directory: '/home/ricardo/.local/share/Anki2/Ricardo/collection.anki2/21-12-14-22-45-44175.png'
 
     def newLoadNote(self, editor: Editor):
         """Listens when the current showed card is changed.
@@ -65,16 +60,17 @@ class EditorController(BaseController):
 
         self._currentNote = self._editorReference.note
         self.browser.clearContext()
+        self.update_fields_from_note()
         if not cfg.getConfig().keepBrowserOpened:
             self.browser.close()
 
-    def onEditorHandle(self, webView, menu):
+    def onEditorHandle(self, editor_webview, menu):
         """
         Wrapper to the real context menu handler on the editor;
         Also holds a reference to the editor
         """
 
-        self._editorReference = webView.editor
+        self._editorReference = editor_webview.editor
         self.createEditorMenu(menu, self.handleProviderSelection)
 
     def setupShortcuts(self, scuts: list, editor):
@@ -140,8 +136,8 @@ class EditorController(BaseController):
                         self._currentNote.fields[noSelectionResult.value]
                     )
 
-        note = webview.editor.note
-        return self.prepareNoSelectionDialog(note)
+        self._currentNote = webview.editor.note
+        return self.prepareNoSelectionDialog()
 
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
         if not resultValue or resultValue.resultType in (
@@ -162,12 +158,14 @@ class EditorController(BaseController):
     # ---------------------------------- --------------- ---------------------------------
     def beforeOpenBrowser(self):
         self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
+        self.browser.setInfoList(
+            ["No action available", "Required: Text selected or link to image"]
+        )
+
+    def update_fields_from_note(self):
         note = self._currentNote
         fieldList = note.model()["flds"]
         fieldsNames = {
             ind: val for ind, val in enumerate(map(lambda i: i["name"], fieldList))
         }
-        self.browser.setInfoList(
-            ["No action available", "Required: Text selected or link to image"]
-        )
         self.browser.setFields(fieldsNames)

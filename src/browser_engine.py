@@ -4,17 +4,12 @@
 # Handles Web engine itself
 # --------------------------------------------------
 
-import os
-
 from aqt.qt import *
 
 from . import CWD
 from .core import Feedback
 
-if qtmajor <= 5:
-    from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
-else:
-    from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 
 LOAD_PAGE = """
     <html>

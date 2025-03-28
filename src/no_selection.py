@@ -9,12 +9,10 @@ from aqt import qtmajor
 
 from .core import Feedback
 
-if qtmajor == 5:
+if qtmajor == 6:
     from .no_selection_view import Ui_Dialog
-elif qtmajor == 6:
-    from .no_selection_view_qt6 import Ui_Dialog
 else:
-    raise RuntimeError("unkkown qt version")
+    raise RuntimeError("Unknown or unsupported qt version")
 
 
 class NoSelectionResult:

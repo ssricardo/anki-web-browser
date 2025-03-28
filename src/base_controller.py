@@ -47,7 +47,12 @@ class BaseController:
     def _getQueryValue(self, input):
         raise Exception('Must be overriden')
 
-    def prepareNoSelectionDialog(self, note):
+    def prepareNoSelectionDialog(self):
+        note = self._currentNote
+        if note is None:
+            Feedback.showInfo('No context for search was found. Ignoring Web-Browser call')
+            return
+
         fieldList = note.model()['flds']
         fieldsNames = {ind: val for ind, val in enumerate(map(lambda i: i['name'], fieldList))}
         self._noSelectionHandler.setFields(fieldsNames)

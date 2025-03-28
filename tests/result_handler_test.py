@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 sys.argv.append('-awb-test')
 
-from PyQt5.QtCore import QUrl
+from PyQt6.QtCore import QUrl
 from src.result_handler import ResultHandler
 from tests.anki_mocks_test import *
 
