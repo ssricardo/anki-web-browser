@@ -84,9 +84,8 @@ BLANK_PAGE = """
     </html>
 """
 
-if qtmajor > 5:
-    Qt.Horizontal = Qt.Orientation.Horizontal
-    from PyQt6 import QtCore
+Qt.Horizontal = Qt.Orientation.Horizontal
+from PyQt6 import QtCore
 
 
 # noinspection PyPep8Naming
@@ -250,10 +249,7 @@ class AwBrowser(QMainWindow):
         mainLayout.addWidget(bottomWidget)
 
         if cfg.getConfig().browserAlwaysOnTop:
-            if qtmajor > 5:
-                self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
-            else:
-                self.setWindowFlags(Qt.WindowType.WindowType.WindowStaysOnTopHint)
+            self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
         if cfg.getConfig().enableDarkReader:
             AwWebEngine.enableDarkReader()

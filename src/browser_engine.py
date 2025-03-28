@@ -35,6 +35,7 @@ class AwWebEngine(QWebEngineView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.dark_reader_loaded = False
         self.create()
         self.interceptor = WebRequestInterceptor()
         self.page().profile().setUrlRequestInterceptor(self.interceptor)
@@ -60,6 +61,7 @@ class AwWebEngine(QWebEngineView):
 
         self.page().loadStarted.connect(self.onStartLoading)
         self.page().loadFinished.connect(self.onLoadFinish)
+        self.page().loadProgress.connect(self.onLoadProgress)
 
         return self
 
@@ -71,28 +73,40 @@ class AwWebEngine(QWebEngineView):
 
     def onStartLoading(self):
         self.isLoading = True
+        self.dark_reader_loaded = False
+
+    def onLoadProgress(self, progress: int):
+        if progress >= 50:
+            self.activate_darkreader_if_needed()
 
     def onLoadFinish(self, result):
         self.isLoading = False
         if not result:
             Feedback.log("No result on loading page! ")
 
-        if AwWebEngine.DARK_READER:
-            # self.page().runJavaScript(AwWebEngine.DARK_READER)
-            # self.page().runJavaScript("document.getElementById('loadingBack').disabled = 'disabled';")
-            self.page().runJavaScript("DarkReader.setFetchMethod(window.fetch);")
+        self.activate_darkreader_if_needed()
 
-            self.page().runJavaScript(
-                """
-                    DarkReader.enable({
-                        brightness: 105,
-                        contrast: 90,
-                        sepia: 10
-                    });
-    
-                    console.log('Dark reader come through');
-                """
-            )
+    def activate_darkreader_if_needed(self):
+        if not AwWebEngine.DARK_READER or self.dark_reader_loaded:
+            return
+
+        self.dark_reader_loaded = True
+        self.page().runJavaScript(AwWebEngine.DARK_READER)
+        self.page().runJavaScript("DarkReader.setFetchMethod(window.fetch);")
+
+        self.page().runJavaScript(
+            """
+                DarkReader.enable({
+                    brightness: 105,
+                    contrast: 90,
+                    sepia: 10,
+                    grayscale: 0,
+                    mode: 1
+                });
+
+                console.log('Dark reader was activated');
+            """
+        )
 
 
 class WebRequestInterceptor(QWebEngineUrlRequestInterceptor):
