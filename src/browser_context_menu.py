@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
-from typing import List
+from abc import ABC, abstractmethod
+from typing import List, Optional
 
 from aqt.qt import *
 
 from .core import Feedback, Label
 
-if qtmajor == 5:
-    MediaTypeImage = QWebEngineContextMenuData.MediaType.MediaTypeImage
-    Feedback.log("Using Qt5")
-elif qtmajor == 6:
-    MediaTypeImage = QWebEngineContextMenuRequest.MediaType.MediaTypeImage
-    Feedback.log("Using Qt6")
-else:
-    raise RuntimeError("unkown qt version")
-
+MediaTypeImage = QWebEngineContextMenuRequest.MediaType.MediaTypeImage
 
 class StandardMenuOption:
     def __init__(self, name: str, fn):
         self.name = name
         self.fn = fn
 
+
+class DataImportListener(ABC):
+
+    @abstractmethod
+    def handle_selection(self, field: int, value: any, isLink: bool):
+        pass
 
 # noinspection PyPep8Naming
 class AwBrowserMenu:
@@ -28,8 +27,8 @@ class AwBrowserMenu:
     """
 
     infoList = tuple()
-    fields: List = {}
-    resultHandler = None
+    fields: dict = {}
+    listener: Optional[DataImportListener] = None
     _lastAssignedField = None
 
     def __init__(self, defaultOptions: List[StandardMenuOption]):
@@ -47,7 +46,7 @@ class AwBrowserMenu:
 
         def _processMenuSelection():
             self._lastAssignedField = field
-            self.resultHandler.handle_selection(field, value, isLink)
+            self.listener.handle_selection(field, value, isLink)
 
         return _processMenuSelection
 
@@ -57,7 +56,7 @@ class AwBrowserMenu:
         Shows and handle options (from field list), only if in edit mode.
         """
 
-        if not (self.fields and self.resultHandler):
+        if not (self.fields and self.listener):
             Feedback.log(
                 "No fields assigned"
                 if not self.fields
@@ -155,7 +154,7 @@ class AwBrowserMenu:
 
         if self._lastAssignedField:
             if self._lastAssignedField in self.fields:
-                self.resultHandler.resultHandler(self._lastAssignedField, value, isLink)
+                self.listener.handle_selection(self._lastAssignedField, value, isLink)
                 return True
             else:
                 self._lastAssignedField = None

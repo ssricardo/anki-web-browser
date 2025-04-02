@@ -5,12 +5,15 @@
 # @author ricardo saturnino
 # -------------------------------------------------------------
 
+import os
+
 from aqt import mw
 from aqt.utils import openLink, showWarning, tooltip
 
 from .base_controller import BaseController
 from .config.main import service as cfg, ConfigHolder
 from .core import Feedback
+from .result_handler import ResultHandler
 from .review_controller import ReviewController
 from .editor_controller import EditorController
 
@@ -20,7 +23,8 @@ editorCtrl = None
 
 # @staticmethod
 def _ankiShowInfo(*args):
-    tooltip(args, 3500)
+    text = "".join(args)
+    tooltip(text, 3500)
 
 
 # @staticmethod
@@ -42,6 +46,7 @@ def _bindAnkiConfig():
 
     cfg._readConfigAsObj = _readAnkiToObj
     cfg._writeConfig = _writeAnkiConfig
+    ResultHandler.get_media_location = lambda: os.path.join(mw.pm.profileFolder(), "collection.media")
 
 
 def run():

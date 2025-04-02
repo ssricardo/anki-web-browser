@@ -45,6 +45,14 @@
         {
             "name": "Leo Dict",
             "url": "https://dict.leo.org/englisch-deutsch/{}"
+        },
+        {
+            "name": "ChatGpt",
+            "url": "https://chatgpt.com/?q={}"
+        },
+        {
+            "name": "PerplexityAI",
+            "url": "https://www.perplexity.ai/search?q={}"
         }
     ],
     "groups":  [
@@ -65,6 +73,13 @@
             "DwDs",
             "Forvo"
           ]
+        },
+        {
+            "name": "AI",
+            "providerList": [
+              "ChatGpt",
+              "PerplexityAI"
+            ]
         }
     ],
     "filteredWords": []

@@ -12,13 +12,12 @@ from typing import List
 from aqt.qt import *
 
 from . import CWD
-from .browser_context_menu import AwBrowserMenu, StandardMenuOption
+from .browser_context_menu import AwBrowserMenu, StandardMenuOption, DataImportListener
 from .browser_engine import AwWebEngine
 from .config.main import service as cfg
 from .core import Feedback, Style
 from .exception_handler import exceptionHandler
 from .provider_selection import ProviderSelectionController
-from .result_handler import ResultHandler
 
 WELCOME_PAGE = """
     <html>
@@ -88,6 +87,16 @@ Qt.Horizontal = Qt.Orientation.Horizontal
 from PyQt6 import QtCore
 
 
+def _create_profile(anki_profile, parent_wdg):
+    profile_path = os.path.join(CWD, "profile" + anki_profile)
+    profile = QWebEngineProfile("my_profile", parent_wdg)
+    profile.setPersistentStoragePath(profile_path)
+    profile.setPersistentCookiesPolicy(QWebEngineProfile.PersistentCookiesPolicy.ForcePersistentCookies)
+    profile.setHttpCacheType(
+        QWebEngineProfile.HttpCacheType.DiskHttpCache)  # 👈 Make sure cache is also on disk
+    profile.setHttpCacheMaximumSize(50 * 1024 * 1024)
+    return profile
+
 # noinspection PyPep8Naming
 class AwBrowser(QMainWindow):
     """
@@ -104,12 +113,14 @@ class AwBrowser(QMainWindow):
 
     providerList = []
 
-    def __init__(self, myParent: QWidget, sizingConfig: tuple):
+    def __init__(self, parent_wdg: QWidget, anki_profile: str, sizingConfig: tuple):
         QDialog.__init__(self, None)
-        self._parent = myParent
+        # super().__init__()
+        self._parent = parent_wdg
         self.setupUI(sizingConfig)
         self._setupShortcuts()
-        # self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+
+        self._profile = _create_profile(anki_profile, parent_wdg)
 
         self._menuDelegator = AwBrowserMenu(
             [
@@ -122,7 +133,7 @@ class AwBrowser(QMainWindow):
     @classmethod
     def singleton(cls, parent, sizeConfig: tuple):
         if not cls.SINGLETON:
-            cls.SINGLETON = AwBrowser(parent, sizeConfig)
+            cls.SINGLETON = AwBrowser(parent, "local", sizeConfig)
         return cls.SINGLETON
 
     # ======================================== View setup =======================================
@@ -277,7 +288,7 @@ class AwBrowser(QMainWindow):
     # ======================================== Tabs =======================================
 
     def add_new_tab(self, qurl=None, label="Blank"):
-        browser = AwWebEngine(self)
+        browser = AwWebEngine(self, self._profile)
         browser.preLoadPage()
         if qurl:
             browser.setUrl(qurl)
@@ -296,7 +307,7 @@ class AwBrowser(QMainWindow):
         self._menuDelegator.setCurrentWeb(self._currentWeb)
 
         browser.urlChanged.connect(
-            lambda qurl, browser=browser: self.update_urlbar(qurl, browser)
+            lambda qurl, bwr=browser: self.update_urlbar(qurl, bwr)
         )
 
         browser.loadFinished.connect(self.updateTabTitle(i, browser))
@@ -474,7 +485,6 @@ class AwBrowser(QMainWindow):
         self._currentWeb.stop()
 
     def welcome(self):
-        # self._web.setHtml(WELCOME_PAGE)
         self.add_new_tab(None)
         self._currentWeb.setHtml(WELCOME_PAGE)
         self._itAddress.setText("about:blank")
@@ -528,9 +538,9 @@ class AwBrowser(QMainWindow):
     def setFields(self, fieldsDict: dict):
         self._menuDelegator.fields = fieldsDict
 
-    def setResultHandler(self, value: ResultHandler):
+    def set_import_listener(self, value: DataImportListener):
         Feedback.log("Set selectionHandler % s" % str(value))
-        self._menuDelegator.resultHandler = value
+        self._menuDelegator.listener = value
 
     def setInfoList(self, data: list):
         self._menuDelegator.infoList = tuple(data)

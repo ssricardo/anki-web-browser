@@ -9,8 +9,6 @@ from aqt.qt import *
 from . import CWD
 from .core import Feedback
 
-from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInterceptor
-
 LOAD_PAGE = """
     <html>
         <style type="text/css">
@@ -33,22 +31,21 @@ class AwWebEngine(QWebEngineView):
     isLoading = False
     DARK_READER = None
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, profile: QWebEngineProfile=None):
         super().__init__(parent)
+        self.setPage(QWebEnginePage(profile, self))
         self.dark_reader_loaded = False
-        self.create()
-        self.interceptor = WebRequestInterceptor()
-        self.page().profile().setUrlRequestInterceptor(self.interceptor)
+        self.setup_web()
+        self.page().profile().setUrlRequestInterceptor(None)
 
     @classmethod
-    def enableDarkReader(clz):
-        if not clz.DARK_READER:
+    def enableDarkReader(cls):
+        if not cls.DARK_READER:
             with open(os.path.join(CWD, "resources", "darkreader.js"), "r") as ngJS:
-                clz.DARK_READER = ngJS.read()
+                cls.DARK_READER = ngJS.read()
                 Feedback.log("DarkReader loaded")
 
-    def create(self):
-
+    def setup_web(self):
         self.settings().setAttribute(
             QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
         )
@@ -66,7 +63,6 @@ class AwWebEngine(QWebEngineView):
         return self
 
     def preLoadPage(self):
-        print("Preload")
         self.setHtml(LOAD_PAGE, QUrl("about:blank"))
 
     # ======   Listeners ======
@@ -107,11 +103,3 @@ class AwWebEngine(QWebEngineView):
                 console.log('Dark reader was activated');
             """
         )
-
-
-class WebRequestInterceptor(QWebEngineUrlRequestInterceptor):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def interceptRequest(self, info):
-        info.setHttpHeader(b"Access-Control-Allow-Origin", b"*")

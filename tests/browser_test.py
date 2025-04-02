@@ -65,7 +65,7 @@ def test_repeatableAction():
         {'name': 'Test'},
         {'name': 'Item2'}
     ]
-    bm.resultHandler = lambda a, b, c: print(a, b, c)
+    bm.controller = lambda a, b, c: print(a, b, c)
 
     assert not (bm._assignToLastField('Novo', False))
     menuFn = bm._makeMenuAction(bm.fields[1], 'Test', False)
@@ -94,7 +94,7 @@ def test_textSelection():
         'name': 'Test',
         'name': 'Item2'
     }
-    bm.resultHandler = lambda a, b, c: print(a, b, c)
+    bm.controller = lambda a, b, c: print(a, b, c)
     engine.selectedText = customSelected
     bm.contextMenuEvent(FakeEvent())
 
@@ -112,7 +112,7 @@ def test_integratedView():
         print('Field: %s' % (f))
         print('Link/Value: %s / %s' % (l, v))
 
-    view.setResultHandler(handlerFn)
+    view.set_import_listener(handlerFn)
     view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}',
                'https://translate.google.com/#view=home&op=translate&sl=auto&tl=en&text={}'], 'calendar', True)
     sys.exit(app.exec())
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
     rHandler.handle_selection = handlerFn
 
-    view.setResultHandler(rHandler)
+    view.set_import_listener(rHandler)
     view.open(['https://www.google.com/search?tbm=isch&tbs=isz:i&q={}'], 'calendar', True)
     sys.exit(app.exec())
 

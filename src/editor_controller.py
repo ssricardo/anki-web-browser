@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Interface between Anki's Editor and this addon's components
-
+import json
 # This files is part of anki-web-browser addon
 # @author ricardo saturnino
 # ------------------------------------------------
@@ -16,14 +16,14 @@ from aqt import mw
 from aqt.qt import *
 
 from .base_controller import BaseController
+from .browser_context_menu import DataImportListener
 from .config.main import service as cfg
 from .core import Feedback
 from .no_selection import NoSelectionResult
-from .result_handler import ResultHandler
 
 
 # noinspection PyPep8Naming
-class EditorController(BaseController):
+class EditorController(BaseController, DataImportListener):
     _editorReference = None
     _curSearch: List[str] = None
 
@@ -40,12 +40,11 @@ class EditorController(BaseController):
     def setupBindings(self):
         gui_hooks.editor_will_show_context_menu.append(self.onEditorHandle)
         gui_hooks.editor_did_init_shortcuts.append(self.setupShortcuts)
-        gui_hooks.editor_did_load_note.append(self.newLoadNote)
+        gui_hooks.editor_did_load_note.append(self.handle_note_loaded)
 
-        ResultHandler.create_image_from_url = lambda url: self._editorReference.urlToLink(url)
-        ResultHandler.get_media_location = lambda: os.path.join(mw.pm.profileFolder(), "collection.media")
+        self._result_handler.create_image_from_url = lambda url: self._editorReference.urlToLink(url)
 
-    def newLoadNote(self, editor: Editor):
+    def handle_note_loaded(self, editor: Editor):
         """Listens when the current showed card is changed.
         Send msg to browser to cleanup its state"""
 
@@ -76,7 +75,7 @@ class EditorController(BaseController):
     def setupShortcuts(self, scuts: list, editor):
         self._editorReference = editor
         scuts.append((cfg.getConfig().menuShortcut, self._showBrowserMenu))
-        scuts.append((cfg.getConfig().repeatShortcut, self._repeatProviderOrShowMenu))
+        scuts.append((cfg.getConfig().repeatShortcut, self._repeat_provider_or_show_menu))
 
     # ------------------------ Addon operation -------------------------
 
@@ -91,16 +90,15 @@ class EditorController(BaseController):
 
         self.createEditorMenu(parent, self.handleProviderSelection)
 
-    def _repeatProviderOrShowMenu(self):
+    def _repeat_provider_or_show_menu(self):
         webView = self._editorReference.web
         if not self._curSearch:
             return self.createEditorMenu(webView, self.handleProviderSelection)
 
-        super()._repeatProviderOrShowMenu(webView)
+        super()._repeat_provider_or_show_menu_for_view(webView)
 
     def createEditorMenu(self, parent, menuFn):
-        """Deletegate the menu creation and work related to providers"""
-
+        """Delegate the menu creation and work related to providers"""
         return self._providerSelection.showCustomMenu(parent, menuFn)
 
     def handleProviderSelection(self, resultList: list):
@@ -155,14 +153,32 @@ class EditorController(BaseController):
 
         return self.openInBrowser(value)
 
+    def handle_selection(self, field: int, value: any, isUrl=False):
+        imported_content = self._result_handler.handle_selection(value, isUrl)
+        if imported_content is None:
+            Feedback.log("No content was imported")
+            return
+        editor = self._editorReference
+
+        editor.currentField = field
+
+        editor.web.eval("focusField(%d);" % field)
+        imported_content = "<br/>" + imported_content # need to keep extra <br>, otherwise div is striped
+        editor.web.eval("setFormat('inserthtml', %s);" % json.dumps(imported_content))
+        Feedback.showInfo("Anki Web Browser: Content imported to note")
+
+
     # ---------------------------------- --------------- ---------------------------------
+
     def beforeOpenBrowser(self):
-        self.browser.setResultHandler(ResultHandler(self._editorReference, self._currentNote))
+        self.browser.set_import_listener(self)
         self.browser.setInfoList(
             ["No action available", "Required: Text selected or link to image"]
         )
 
     def update_fields_from_note(self):
+        if not self._currentNote:
+            return
         note = self._currentNote
         fieldList = note.model()["flds"]
         fieldsNames = {

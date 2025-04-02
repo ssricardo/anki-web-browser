@@ -55,7 +55,7 @@ if __name__ == "__main__":
     rHandler = ResultHandler(TestEditor(), TestNote())
     rHandler.handle_selection = onSelected
 
-    web.setResultHandler(rHandler)
+    web.set_import_listener(rHandler)
     web.setFields({0: 'Front', 1: 'Other', 2: 'Example'})
     web.open(['https://images.google.com/?q={}'], 'my app test')
     web.show()

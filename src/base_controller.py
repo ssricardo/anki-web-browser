@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
 # ---------------------------------- ================ ---------------------------------
 # ---------------------------------- Base Controller -----------------------------------
 # ---------------------------------- ================ ---------------------------------
+from abc import ABC, abstractmethod
 from typing import List
 
 from .config.main import service as cfg
@@ -11,14 +11,16 @@ from .exception_handler import exceptionHandler
 from .browser import AwBrowser
 from .no_selection import NoSelectionController, NoSelectionResult
 from .provider_selection import ProviderSelectionController
+from .result_handler import ResultHandler
 
 
-class BaseController:
+class BaseController(ABC):
     """ Concentrates common operations between both concrete controllers """
 
     browser = None
     _currentNote = None
-    _ankiMw = None    
+    _ankiMw = None
+    _result_handler: ResultHandler
 
     def __init__(self, ankiMw):
         super().__init__()
@@ -26,9 +28,10 @@ class BaseController:
         self.browser = AwBrowser.singleton(ankiMw, cfg.getInitialWindowSize())
         self._noSelectionHandler = NoSelectionController(ankiMw)
         self._providerSelection = ProviderSelectionController()
+        self._result_handler = ResultHandler()
 
     @exceptionHandler
-    def _repeatProviderOrShowMenu(self, webView):
+    def _repeat_provider_or_show_menu_for_view(self, webView):
         query = self._getQueryValue(webView)
         if not query:
             return
@@ -83,8 +86,10 @@ class BaseController:
     def openExternalLink(target):
         raise Exception('Must be overriden')
 
+    @abstractmethod
     def getCurrentSearch(self) -> List[str]:
-        raise Exception('Must be overriden')
+        pass
 
+    @abstractmethod
     def handleNoSelectionResult(self, resultValue: NoSelectionResult):
-        raise Exception('Must be overriden')
+        pass
