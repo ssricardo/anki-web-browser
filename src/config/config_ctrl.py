@@ -5,7 +5,7 @@
 # @author ricardo saturnino
 # -------------------------------------------------------
 
-from .main import service
+from .main import config_service
 from .config_view import ConfigView
 
 
@@ -20,8 +20,8 @@ class ConfigController:
 
     def __init__(self, myParent):
         self._ui = ConfigView(None)
-        self._ui.save = service.save
+        self._ui.save = config_service.save
 
     def open(self):
         """Opens the Config window"""
-        self._ui.open(service.getConfig())
+        self._ui.open(config_service.getConfig())

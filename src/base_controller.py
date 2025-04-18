@@ -5,10 +5,11 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from .config.main import service as cfg
+from .browser_dock import WebBrowserDock
+from .browser_window import WebBrowserWindow
+from .config.main import config_service as cfg
 from .core import Feedback
 from .exception_handler import exceptionHandler
-from .browser import AwBrowser
 from .no_selection import NoSelectionController, NoSelectionResult
 from .provider_selection import ProviderSelectionController
 from .result_handler import ResultHandler
@@ -19,16 +20,20 @@ class BaseController(ABC):
 
     browser = None
     _currentNote = None
-    _ankiMw = None
     _result_handler: ResultHandler
+    _noSelectionHandler: NoSelectionController = None
+    _providerSelection: ProviderSelectionController = None
 
-    def __init__(self, ankiMw):
-        super().__init__()
-        self._ankiMw = ankiMw
-        self.browser = AwBrowser.singleton(ankiMw, cfg.getInitialWindowSize())
-        self._noSelectionHandler = NoSelectionController(ankiMw)
+    def init_configurable_components(self):
         self._providerSelection = ProviderSelectionController()
         self._result_handler = ResultHandler()
+
+    def setup_view(self, parent):
+        if cfg.getConfig().useAsDock:
+            self.browser = WebBrowserDock.new(parent, cfg.getInitialWindowSize())
+        else:
+            self.browser = WebBrowserWindow.singleton(parent, cfg.getInitialWindowSize())
+        self._noSelectionHandler = NoSelectionController(parent)
 
     @exceptionHandler
     def _repeat_provider_or_show_menu_for_view(self, webView):
@@ -47,8 +52,18 @@ class BaseController(ABC):
         resultwords = [word for word in querywords if word.lower() not in filteredWords]
         return ' '.join(resultwords)
 
-    def _getQueryValue(self, input):
-        raise Exception('Must be overriden')
+    def _getQueryValue(self, webview):
+        if webview.hasSelection():
+            return self._filterQueryValue(webview.selectedText())
+
+        if self._noSelectionHandler.isRepeatOption():
+            noselection_result = self._noSelectionHandler.getValue()
+            if noselection_result.resultType == NoSelectionResult.USE_FIELD:
+                if noselection_result.value < len(self._currentNote.fields):
+                    Feedback.log("USE_FIELD {}: {}".format(noselection_result.value, self._currentNote.fields[noselection_result.value], ))
+                    return self._filterQueryValue(self._currentNote.fields[noselection_result.value])
+
+        return self.prepareNoSelectionDialog()
 
     def prepareNoSelectionDialog(self):
         note = self._currentNote
@@ -72,15 +87,16 @@ class BaseController(ABC):
 
         if cfg.getConfig().useSystemBrowser:
             for wl in websiteList:
-                target = self.browser.formatTargetURL(wl, query)
+                target = self.browser.format_target_url(wl, query)
                 BaseController.openExternalLink(target)
             return
         
         self.beforeOpenBrowser()
         self.browser.open(websiteList, query, True, True)
 
+    @abstractmethod
     def beforeOpenBrowser(self):
-        raise Exception('Must be overriden')
+        pass
 
     @staticmethod
     def openExternalLink(target):

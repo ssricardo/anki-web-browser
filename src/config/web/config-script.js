@@ -3,7 +3,7 @@ var curConfig = {}
 var pages = [
     {
         "label": "Main",
-        "page": "./config-misc.html",
+        "page": "./config-main.html",
         "loadFn": () => loadMain(),
         "storeFn": () => saveMain(),
     },
@@ -20,10 +20,10 @@ var pages = [
         "storeFn": () => saveGroups(),
     },
     {
-        "label": "Pos Processing",
-        "page": "./config-pos-import.html",
-        "loadFn": () => loadPosProcess(),
-        "storeFn": () => savePosProcess(),
+        "label": "Complementary Config",
+        "page": "./config-complement.html",
+        "loadFn": () => loadComplement(),
+        "storeFn": () => saveComplement(),
     }
 ]
 

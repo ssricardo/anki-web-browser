@@ -34,9 +34,9 @@
                         <td>${group.providerList.join('<br />')}</td> 
                         <td class="rActions">
                             <a href="#" onclick="editGroup(${index})" title="Edit Group"><img src="../../assets/edit.png" width="24" /></a>
-                            <a href="#" onclick="removeItem(${index})" title="Remove Group"><img src="../../assets/icon-trash.png" width="24" /></a>
                             <a href="#" onclick="moveItem(${index}, -1)" title="Move Up"><img src="../../assets/icon-up.png" width="24" /></a>
                             <a href="#" onclick="moveItem(${index}, +1)" title="Move Down"><img src="../../assets/icon-down.png" width="24" /></a>
+                            <a href="#" onclick="removeItem(${index})" title="Remove Group"><img src="../../assets/icon-trash.png" width="32" /></a>
                         </td> 
                     </tr>`)
         $('#tbRows').append(row)

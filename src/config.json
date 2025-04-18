@@ -2,6 +2,7 @@
     "keepBrowserOpened": true,
     "browserAlwaysOnTop": false,
     "useSystemBrowser": false, 
+    "useAsDock": false,
     "menuShortcut": "Ctrl+Shift+B",
     "initialBrowserSize": "950x750",
     "repeatShortcut": "F10", 

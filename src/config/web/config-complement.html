@@ -12,17 +12,26 @@
         border-bottom: 1px solid;
     }
 
-    #secMisc div > label {
+    #secMisc2 div > label {
         width: 35%;
         display: inline-block;
         text-align: right;
     }
 </style>
 
-<section id="secMisc">
+<section id="secMisc2">
     <div id="mainConfg">
-        <h2>Pos Processing</h2>
+        <h2>Complementary Configs</h2>
 
+        <div class="switch-container">
+            <label for="cbDarkReader">Enable DarkReader (unstable)</label>
+            <label class="switch">
+                <input type="checkbox" id="cbDarkReader" />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <h3>Pos Processing</h3>
         <h4>Image Reducing</h4>
         <blockquote>
             Images are reduced maintaining the ratio, if values are specified below
@@ -39,20 +48,22 @@
 
     <script type="text/javascript">        
 
-        function loadPosProcess() {
+        function loadComplement() {
             if (!curConfig || !curConfig.initialBrowserSize || !curConfig.filteredWords) {
                 return;
             }
 
+            $('#cbDarkReader').prop('checked', curConfig.enableDarkReader)
             $('#itImgMaxWidth').val(curConfig.imgMaxWidth)
             $('#itImgMaxHeight').val(curConfig.imgMaxHeight)        
 
             onUsedBrowserChange()
         }
 
-        function savePosProcess() {
+        function saveComplement() {
             curConfig.imgMaxWidth = parseInt($('#itImgMaxWidth').val().trim())
             curConfig.imgMaxHeight = parseInt($('#itImgMaxHeight').val().trim())
+            curConfig.enableDarkReader = $('#cbDarkReader').is(":checked")
         }
     </script>
 </section>

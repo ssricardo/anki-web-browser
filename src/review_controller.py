@@ -10,12 +10,10 @@ from typing import List, Optional, Iterable
 from aqt import gui_hooks, mw
 from aqt.qt import QAction
 from aqt.reviewer import Reviewer
-from aqt.sound import av_player
 
 from .base_controller import BaseController
-from .browser import AwBrowser
 from .browser_context_menu import DataImportListener
-from .config.main import service as cfg
+from .config.main import config_service as cfg
 from .core import Feedback
 from .exception_handler import exceptionHandler
 from .no_selection import NoSelectionResult
@@ -30,10 +28,12 @@ class ReviewController(BaseController, DataImportListener):
     _curSearch: List[str] = None
     _last_card_id: Optional[int] = None
 
-    def __init__(self, anki_mw):
-        super(ReviewController, self).__init__(anki_mw)
-        # self.browser = AwBrowser.singleton(anki_mw.web, mw.pm.profile.name, cfg.getInitialWindowSize())
-        self.browser.set_import_listener(None)
+    def __init__(self):
+        super(ReviewController, self).__init__()
+
+    def init_configurable_components(self):
+        super().init_configurable_components()
+        self.setup_bindings()
 
     def setup_bindings(self):
         gui_hooks.webview_will_show_context_menu.append(self.onReviewerHandle)
@@ -41,19 +41,19 @@ class ReviewController(BaseController, DataImportListener):
         gui_hooks.card_will_show.append(self.load_card)
         Reviewer._shortcutKeys = self.wrap_shortcutKeys(Reviewer._shortcutKeys)
 
-        # Add web to menu
-        action = QAction("Anki-Web-Browser Config", self._ankiMw)
-        action.triggered.connect(self.open_config)
-        self._ankiMw.form.menuTools.addAction(action)
+        action = QAction("Anki-Web-Browser Config", mw)
+        action.triggered.connect(ReviewController.open_config)
+        mw.form.menuTools.addAction(action)
         self._result_handler.create_image_from_url = ReviewController._import_urlToLink
 
     @staticmethod
     def _import_urlToLink(url):
-        return ""
+        return ""  # not supported yet
 
-    def open_config(self):
+    @staticmethod
+    def open_config():
         from .config.config_ctrl import ConfigController
-        cc = ConfigController(self._ankiMw)
+        cc = ConfigController(mw)
         cc.open()
 
     def wrap_shortcutKeys(self, fn):
@@ -61,9 +61,7 @@ class ReviewController(BaseController, DataImportListener):
 
         def customShortcut(self):
             sList = fn(self)
-            sList.append((cfg.getConfig().menuShortcut,
-                          lambda: ref.createReviewerMenu(
-                              ref._ankiMw.web, ref._ankiMw.web)))
+            sList.append((cfg.getConfig().menuShortcut, lambda: ref.createReviewerMenu(mw.web, mw.web)))
 
             sList.append((cfg.getConfig().repeatShortcut, ref._repeat_provider_or_show_menu))
             return sList
@@ -75,14 +73,14 @@ class ReviewController(BaseController, DataImportListener):
     @exceptionHandler
     def _repeat_provider_or_show_menu(self):
         if not self._curSearch:
-            return self.createReviewerMenu(self._ankiMw.web, self._ankiMw.web)
+            return self.createReviewerMenu(mw.web, mw.web)
 
-        webView = self._ankiMw.web
+        webView = mw.web
         super()._repeat_provider_or_show_menu_for_view(webView)
 
     def handleProviderSelection(self, resultList: List[str]):
         Feedback.log('Handle provider selection')
-        webview = self._ankiMw.web
+        webview = mw.web
         query = self._getQueryValue(webview)
         self._curSearch = resultList
         if not query:
@@ -96,32 +94,16 @@ class ReviewController(BaseController, DataImportListener):
 
         self._providerSelection.showCustomMenu(menu, self.handleProviderSelection)
 
-    # TODO: move parts to superclass / adapt
-    def _getQueryValue(self, webview):
-        Feedback.log('getQueryValue', webview, self._currentNote)
-        if webview.hasSelection():
-            return self._filterQueryValue(webview.selectedText())
-
-        if self._noSelectionHandler.isRepeatOption():
-            noSelectionResult = self._noSelectionHandler.getValue()
-            if noSelectionResult.resultType == NoSelectionResult.USE_FIELD:
-                if noSelectionResult.value < len(self._currentNote.fields):
-                    Feedback.log('USE_FIELD {}: {}'.format(noSelectionResult.value,
-                                                           self._currentNote.fields[noSelectionResult.value]))
-                    return self._filterQueryValue(self._currentNote.fields[noSelectionResult.value])
-
-        return self.prepareNoSelectionDialog()
-
-    def handleNoSelectionResult(self, resultValue: NoSelectionResult):
-        if not resultValue or \
-                resultValue.resultType in (NoSelectionResult.NO_RESULT, NoSelectionResult.SELECTION_NEEDED):
+    def handleNoSelectionResult(self, result: NoSelectionResult):
+        if not result or \
+                result.resultType in (NoSelectionResult.NO_RESULT, NoSelectionResult.SELECTION_NEEDED):
             Feedback.showInfo('No value selected')
             return
-        value = resultValue.value
-        if resultValue.resultType == NoSelectionResult.USE_FIELD:
-            value = self._currentNote.fields[resultValue.value]
+        value = result.value
+        if result.resultType == NoSelectionResult.USE_FIELD:
+            value = self._currentNote.fields[result.value]
             value = self._filterQueryValue(value)
-            Feedback.log('USE_FIELD {}: {}'.format(resultValue.value, value))
+            Feedback.log('USE_FIELD {}: {}'.format(result.value, value))
 
         return self.openInBrowser(value)
 
@@ -151,7 +133,7 @@ class ReviewController(BaseController, DataImportListener):
             Wrapper to the real context menu handler on the reviewer;
         """
 
-        if self._ankiMw.reviewer and self._ankiMw.reviewer.card:
+        if mw.reviewer and mw.reviewer.card:
             self.createReviewerMenu(webView, menu)
 
     def handle_selection(self, field_index: int, value: any, isUrl=False):
@@ -180,8 +162,10 @@ class ReviewController(BaseController, DataImportListener):
         if not self._currentNote:
             return
         note = self._currentNote
-        fieldList = note.model()["flds"]
+        fieldList = note.note_type()["flds"]
         fieldsNames = {
             ind: val for ind, val in enumerate(map(lambda i: i["name"], fieldList))
         }
         self.browser.setFields(fieldsNames)
+
+review_controller = ReviewController()

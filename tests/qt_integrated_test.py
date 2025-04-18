@@ -40,9 +40,6 @@ def menu(self, evt):
     action = mn.exec(self.mapToGlobal(evt.pos()))
 
 
-# browser.AwBrowser.contextMenuEvent = menu
-
-
 def onSelected(field, value, isLink):
     print("Field {} (link? {}): {}".format(field, isLink, value))
 
@@ -50,7 +47,7 @@ def onSelected(field, value, isLink):
 if __name__ == "__main__":
     print("Running Qt App")
     app = QApplication(sys.argv)
-    web = brw.AwBrowser(None, (800, 500))
+    web = brw.WebBrowserCore(None, (800, 500))
 
     rHandler = ResultHandler(TestEditor(), TestNote())
     rHandler.handle_selection = onSelected

@@ -16,7 +16,7 @@ from PyQt6.QtGui import QImage
 
 
 from .core import Feedback
-from .config.main import service as cfgService
+from .config.main import config_service as cfgService
 
 
 class ResultHandler:
@@ -60,8 +60,7 @@ class ResultHandler:
 
         if (not img_reference) or not img_reference.startswith('<img'):
             Feedback.showWarn(
-                'URL invalid! Only URLs with references to image files are supported (ex: http://images.com/any.jpg,  ' +
-                'any.png)')
+                'URL invalid! Only URLs with references to image files are supported (ex: http://images.com/any.jpg, any.png)')
             Feedback.log(img_reference)
             return None
 

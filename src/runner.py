@@ -7,19 +7,20 @@
 
 import os
 
+from aqt import gui_hooks
 from aqt import mw
 from aqt.utils import openLink, showWarning, tooltip
 
 from .base_controller import BaseController
-from .config.main import service as cfg, ConfigHolder
+from .config.main import config_service as cfg, ConfigHolder
 from .core import Feedback
+from .editor_controller import set_new_editor, editor_controller, setup_editor_bindings
 from .result_handler import ResultHandler
-from .review_controller import ReviewController
-from .editor_controller import EditorController
+from .review_controller import review_controller
 
-# Holds references so GC doesnt kill them
-controllerInstance = None
-editorCtrl = None
+
+# --------------------------------------
+
 
 # @staticmethod
 def _ankiShowInfo(*args):
@@ -33,7 +34,6 @@ def _ankiShowError(*args):
 
 
 def _bindAnkiConfig():
-    # global cfg
 
     def _readAnkiToObj():
         print("Anki read config")
@@ -50,7 +50,6 @@ def _bindAnkiConfig():
 
 
 def run():
-    global controllerInstance, editorCtrl
 
     _bindAnkiConfig()
     Feedback.log('Setting anki-web-browser controller')
@@ -60,10 +59,12 @@ def run():
     BaseController.openExternalLink = openLink
 
     cfg.getConfig()  # Load web
-    controllerInstance = ReviewController(mw)
-    controllerInstance.setup_bindings()
+    review_controller.init_configurable_components()
+    review_controller.setup_view(mw)
+    editor_controller.init_configurable_components()
 
-    editorCtrl = EditorController(mw)
+    setup_editor_bindings()
+    gui_hooks.editor_did_init.append(set_new_editor)
 
     if cfg.firstTime:
-        controllerInstance.browser.welcome()
+        review_controller.browser.welcome()

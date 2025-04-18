@@ -70,16 +70,7 @@ class AwBrowserMenu:
             isImageLink = False
             value = self._web.selectedText()
         else:
-            if (
-                self._contextMenuRequest().mediaType() == MediaTypeImage
-                and self._contextMenuRequest().mediaUrl()
-            ):
-                isLink = True
-                value = self._contextMenuRequest().mediaUrl()
-                Feedback.log("Link: " + value.toString())
-                Feedback.log("toLocal: " + value.toLocalFile())
-            if (self._contextMenuRequest().mediaType() == MediaTypeImage
-                    and self._contextMenuRequest().mediaUrl()):
+            if self._contextMenuRequest().mediaType() == MediaTypeImage and self._contextMenuRequest().mediaUrl():
                 isImageLink = True
                 value = self._contextMenuRequest().mediaUrl()
                 Feedback.log('Link: ' + value.toString())

@@ -76,9 +76,9 @@
                         <td>${provider.url}</td> 
                         <td class="rActions">
                             <a href="#" onclick="edit(${index})" title="Edit Provider"><img src="../../assets/edit.png" width="24" /></a>
-                            <a href="#" onclick="removeItem(${index})" title="Remove Provider"><img src="../../assets/icon-trash.png" width="24" /></a>
                             <a href="#" onclick="moveItem(${index}, -1)" title="Move Up"><img src="../../assets/icon-up.png" width="24" /></a>
                             <a href="#" onclick="moveItem(${index}, +1)" title="Move Down"><img src="../../assets/icon-down.png" width="24" /></a>
+                            <a href="#" onclick="removeItem(${index})" title="Remove Provider"><img src="../../assets/icon-trash.png" width="32" /></a>
                         </td> 
                     </tr>`)
         $('#tbRows').append(row)
@@ -172,8 +172,9 @@
         </div>
         <div>
             <label>Url: </label>
-            <input id="itProvUrl" type="url" onfocus="if (!this.value) this.value = 'https://'"
-             placeholder="https://something/{}"/>
+            <input id="itProvUrl" type="url" style="width: 350px;"
+                   onfocus="if (!this.value) this.value = 'https://'"
+                   placeholder="https://something/{}" />
         </div>
         <div class="pvActions">
             <button onclick="closeForm()">

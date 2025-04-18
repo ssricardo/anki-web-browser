@@ -8,7 +8,7 @@ from typing import List
 from aqt.qt import *
 
 from .config.main import Provider, SearchGroup
-from .config.main import service as cfgService
+from .config.main import config_service as cfgService
 from .core import Label, Style
 
 

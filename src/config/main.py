@@ -10,9 +10,7 @@ from typing import List
 from ..core import Feedback
 
 import os
-import json
 import re
-import shutil
 
 _currentLocation = os.path.dirname(os.path.realpath(__file__))
 _CONFIG_LOCATION = _currentLocation + '/..'
@@ -33,7 +31,7 @@ class ConfigHolder:
 
     def __init__(self, keepBrowserOpened=True, browserAlwaysOnTop=False, menuShortcut=SHORTCUT,
                  providers=[], initialBrowserSize=INITIAL_SIZE, enableDarkReader=False,
-                 repeatShortcut=RP_SHORT, useSystemBrowser=False, groups=[], filteredWords=[],
+                 repeatShortcut=RP_SHORT, useSystemBrowser=False, useAsDock=False, groups=[], filteredWords=[],
                  imgMaxHeight: int = None, imgMaxWidth: int = None, **kargs):
 
         self.providers = [Provider(**p) for p in providers]
@@ -45,6 +43,7 @@ class ConfigHolder:
         self.repeatShortcut = repeatShortcut
         self.filteredWords = filteredWords
         self.initialBrowserSize = initialBrowserSize
+        self.useAsDock = useAsDock
 
         self.imgMaxHeight = imgMaxHeight
         self.imgMaxWidth = imgMaxWidth
@@ -55,6 +54,7 @@ class ConfigHolder:
             'keepBrowserOpened': self.keepBrowserOpened,
             'browserAlwaysOnTop': self.browserAlwaysOnTop,
             'useSystemBrowser': self.useSystemBrowser,
+            'useAsDock': self.useAsDock,
             'menuShortcut': self.menuShortcut,
             'repeatShortcut': self.repeatShortcut, 
             'providers': [p for p in map(lambda p: p.__dict__, self.providers)],
@@ -174,7 +174,7 @@ class ConfigService:
 
         checkedTypes = [(config, ConfigHolder), (config.keepBrowserOpened, bool), (config.browserAlwaysOnTop, bool),
                         (config.useSystemBrowser, bool), (config.providers, list),
-                        (config.enableDarkReader, bool),
+                        (config.enableDarkReader, bool), (config.useAsDock, bool),
                         (config.imgMaxHeight, int), (config.imgMaxWidth, int)]
         for current, expected in checkedTypes:
             if current is None:
@@ -210,4 +210,4 @@ class ConfigService:
 # -----------------------------------------------------------------------------
 # global instances
 
-service = ConfigService()
+config_service = ConfigService()

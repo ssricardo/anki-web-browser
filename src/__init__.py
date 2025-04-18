@@ -7,13 +7,14 @@
 # @author ricardo saturnino
 # -------------------------------------------------------------
 
-__version__ = "7.1"
+__version__ = "25.4_1"
 
 import sys
 import os
 from .config import main
 
 CWD = os.path.dirname(os.path.realpath(__file__))
+os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.webenginecontext.debug=false"
 
 main.addon_home = lambda: CWD
 
