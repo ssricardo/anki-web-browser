@@ -13,6 +13,7 @@ from aqt.utils import openLink, showWarning, tooltip
 
 from .base_controller import BaseController
 from .config.main import config_service as cfg, ConfigHolder
+from .config.version_ctrl import check_version_new, show_welcome
 from .core import Feedback
 from .editor_controller import set_new_editor, editor_controller, setup_editor_bindings
 from .result_handler import ResultHandler
@@ -48,6 +49,11 @@ def _bindAnkiConfig():
     cfg._writeConfig = _writeAnkiConfig
     ResultHandler.get_media_location = lambda: os.path.join(mw.pm.profileFolder(), "collection.media")
 
+def _open_version_if_needed(*args):
+    if check_version_new():
+        show_welcome()
+    gui_hooks.reviewer_did_init.remove(_open_version_if_needed)
+
 
 def run():
 
@@ -65,6 +71,4 @@ def run():
 
     setup_editor_bindings()
     gui_hooks.editor_did_init.append(set_new_editor)
-
-    if cfg.firstTime:
-        review_controller.browser.welcome()
+    gui_hooks.reviewer_did_init.append(_open_version_if_needed)

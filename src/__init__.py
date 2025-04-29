@@ -7,7 +7,7 @@
 # @author ricardo saturnino
 # -------------------------------------------------------------
 
-__version__ = "25.4_1"
+VERSION = "25.4_1"
 
 import sys
 import os

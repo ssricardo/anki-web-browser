@@ -40,10 +40,6 @@
             "url": "https://www.dict.cc/?s={}"
         },
         {
-            "name": "Pons DE",
-            "url": "https://en.pons.com/translate/german-english/{}#examples"
-        },
-        {
             "name": "Leo Dict",
             "url": "https://dict.leo.org/englisch-deutsch/{}"
         },

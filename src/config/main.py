@@ -90,7 +90,6 @@ class ConfigService:
     """
     _config = None
     _validURL = re.compile('^((http|ftp){1}s{0,1}://)([\w._/?&=%#,@]|-)+{}([\w._/?&=%#,;+]|-)*$')
-    firstTime = None
 
     def getConfig(self):
         if not self._config:
@@ -140,7 +139,6 @@ class ConfigService:
         conf.groups = [SearchGroup('Google', ['Google Web', 'Google Translate', 'Google Images'])]
 
         self._writeConfig(conf)
-        self.firstTime = True
         return conf
 
     def _configLocation(self):

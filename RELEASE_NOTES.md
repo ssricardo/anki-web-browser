@@ -1,5 +1,20 @@
 # Notes
 
+**2025.04-1** | 30/Apr/25
+
+
+* Edit notes (cards) directly during the review
+  * It's possible to add **texts** only in the review stage
+* Web Browser attached to main Window (Dock bar)
+  * Instead of using a standalone window, it can be in multiple positions in the Anki Window
+* Persist cookies (cookies are enabled and stored between executions)
+  * This allows the user to login in sites and the session will remain in the next time using Anki
+* Technical changes: 
+  * Modified integration with Anki
+    * The original integration is legacy. This new way aims to reduce un-expected bugs
+  * Change integration with DarkReader
+    * Tough still unstable
+
 **7.2** | 17/Nov/23
 
 * Fix issues with PyQt6 and new version of Anki

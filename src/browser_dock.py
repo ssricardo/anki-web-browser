@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------
-# Web browser main dialog
-# Main GUI component for this addon
+# Web browser add-on
+# Optional GUI for Browser component
 # --------------------------------------------------------
 
 from typing import List
@@ -11,7 +11,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import *
 
 from .browser_context_menu import AwBrowserMenu, StandardMenuOption, DataImportListener
-from .browser_core import WebBrowserCore
+from .browser_core import WebBrowserCore, BrowserContainer
 from .browser_engine import AwWebEngine
 from .config.main import config_service as cfg
 from .exception_handler import exceptionHandler
@@ -20,7 +20,7 @@ Qt.Horizontal = Qt.Orientation.Horizontal
 
 
 # noinspection PyPep8Naming
-class WebBrowserDock(QDockWidget):
+class WebBrowserDock(QDockWidget, BrowserContainer):
     """
     Customization and configuration of a web browser to run within Anki
     """
@@ -51,8 +51,8 @@ class WebBrowserDock(QDockWidget):
     # ======================================== View setup =======================================
 
     def setupUI(self, widthHeight: tuple):
-        # self.setAllowedAreas(
-        #     Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea)
 
         main_layout = self._core
         widget = QWidget(self._parent)
@@ -72,9 +72,7 @@ class WebBrowserDock(QDockWidget):
     @exceptionHandler
     def open(self, website: List[str], query: str, bringUp=False, clearContext=False):
         self._core.open(website, query, clearContext)
-        # if bringUp:
         self.show()
-        # self.setVisible(True)
 
     def clearContext(self):
         self._core.clearContext()

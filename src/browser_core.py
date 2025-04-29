@@ -23,38 +23,6 @@ from .core import Feedback
 from .exception_handler import exceptionHandler
 from .provider_selection import ProviderSelectionController
 
-WELCOME_PAGE = """
-    <html>
-        <style type="text/css">
-            body {
-                margin-top: 30px;
-                background-color: #F5F5F5;
-                color: 003366;
-            }
-
-            p {
-                margin-bottom: 20px;
-            }
-        </style>
-        <body>   
-            <h1>Welcome</h1>
-            <hr />
-
-            <div>
-                Anki-Web-Browser is installed!
-            </div>
-            <p>
-                Its use is pretty simple.<br />
-                It is based on <i>text selecting</i> and <i>context menu</i> (or shortcut). 
-                Now it's also possible to use it without selecting a text.
-            </p>
-            <div>
-                Check more details on the <a href="https://github.com/ssricardo/anki-web-browser">documentation</a>
-            </div>
-        </body>   
-    </html>
-"""
-
 BLANK_PAGE = """
     <html>
         <style type="text/css">
@@ -464,9 +432,9 @@ class WebBrowserCore(QVBoxLayout):
     def _onStopPressed(self):
         self._currentWeb.stop()
 
-    def welcome(self):
+    def show_content(self, content: str):
         self.add_new_tab(None)
-        self._currentWeb.setHtml(WELCOME_PAGE)
+        self._currentWeb.setHtml(content)
         self._itAddress.setText("about:blank")
 
     def _updateContextWidget(self):

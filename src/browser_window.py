@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # --------------------------------------------------------
 # Web browser main dialog
 # Main GUI component for this addon
@@ -100,6 +99,12 @@ class WebBrowserWindow(QMainWindow, BrowserContainer):
     # TODO: manter context widget no core ou aqui?
     # def _updateContextWidget(self):
     #     self.ctxWidget.setText(self._context)
+
+    def show_welcome(self, content: str):
+        self._core.show_content(content)
+        self.show()
+        self.raise_()
+        self.activateWindow()
 
     def format_target_url(self, website: str, query: str = ""):
         return self._core.format_target_url(website, query)

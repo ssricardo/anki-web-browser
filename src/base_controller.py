@@ -33,7 +33,9 @@ class BaseController(ABC):
             self.browser = WebBrowserDock.new(parent, cfg.getInitialWindowSize())
         else:
             self.browser = WebBrowserWindow.singleton(parent, cfg.getInitialWindowSize())
+
         self._noSelectionHandler = NoSelectionController(parent)
+
 
     @exceptionHandler
     def _repeat_provider_or_show_menu_for_view(self, webView):
